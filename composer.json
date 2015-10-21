@@ -1,0 +1,7 @@
+{
+    "require": {
+        "symfony/yaml": "^2.7",
+        "phpseclib/phpseclib": "^2.0",
+        "bramus/ansi-php": "^3.0"
+    }
+}
