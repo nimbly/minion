@@ -1,7 +1,41 @@
 {
+    "name": "nimbly/minion",
+    "version": 0.1,
+    "description": "Framework and language agnostic remote deployment automation tool",
+    "keywords": [
+      "deployment",
+      "automation",
+      "php",
+      "remote"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Brent Scheffler",
+            "email": "brent@nimbly.io"
+        }
+    ],
     "require": {
         "symfony/yaml": "^2.7",
         "phpseclib/phpseclib": "^2.0",
         "bramus/ansi-php": "^3.0"
-    }
+    },
+
+    "autoload": {
+      "psr-4": {
+        "Minion\\": "src/",
+        "Minion\\Commands\\": "commands/",
+        "Minion\\Tasks\\": "tasks/"
+
+      }
+    },
+
+    "repositories": [
+      {
+        "type": "vcs",
+        "url": "https://github.com/nimbly/minion"
+      }
+    ]
+
 }

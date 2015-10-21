@@ -4,8 +4,8 @@
 use Bramus\Ansi\ControlSequences\EscapeSequences\Enums\SGR;
 use minion\Console;
 
-require_once 'vendor/autoload.php';
-
+//require_once 'vendor/autoload.php';
+/*
 spl_autoload_register(function($class){
 
 	//error_log("Trying to autoload {$class}...\n");
@@ -22,7 +22,7 @@ spl_autoload_register(function($class){
 		$file = 'commands/'.$match[1].'.php';
 
 	}
-	elseif( preg_match('/minion\/(\w+\/?)*/', $class) ) {
+	elseif( preg_match('/minion\/(\w+\/?)* /', $class) ) {
 
 		$file = str_replace('minion', 'src', $class).'.php';
 
@@ -40,6 +40,7 @@ spl_autoload_register(function($class){
 	return false;
 
 });
+*/
 
 \minion\Console::getInstance()->bold()->text("MINION v0.2")->lf()->normal();
 

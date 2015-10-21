@@ -1,0 +1,36 @@
+remote:
+  method: release
+  keepReleases: 5
+  path: /var/www/html
+
+code:
+  scm: git
+  repo: git@github.com:nimbly/minion.git
+  branch: master
+  username: ~
+  password: ~
+
+authentication:
+  username: username
+  password:
+  key: id_rsa.pub
+  passphrase: mysecretpassphrase
+
+environments:
+
+  production:
+    servers:
+      - host: 001.example.com
+        migrate: true
+      - host: 002.example.com
+      - host: 003.example.com
+      - host: 004.example.com
+
+  staging:
+    remote:
+      method: update
+      path: /var/www/staging/html
+
+    servers:
+      - host: staging.example.com
+        migrate: true
