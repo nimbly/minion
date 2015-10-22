@@ -16,7 +16,7 @@ class App {
 
 	public function run(array $arguments) {
 
-		$version = file_get_contents('VERSION');
+		$version = file_get_contents(__DIR__.'/../VERSION');
 
 		Console::getInstance()->bold()->text("MINION {$version}")->lf()->normal();
 
