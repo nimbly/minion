@@ -42,7 +42,7 @@ spl_autoload_register(function($class){
 });
 */
 
-\minion\Console::getInstance()->bold()->text("MINION v0.1")->lf()->normal();
+\minion\Console::getInstance()->bold()->text("MINION v1.0")->lf()->normal();
 
 $startTime = microtime(true);
 
