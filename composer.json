@@ -26,6 +26,7 @@
         "bramus/ansi-php": "^3.0"
     },
 
+    "preferred-install": "dev",
     "minimum-stability": "dev",
 
     "autoload": {
