@@ -36,6 +36,8 @@
         "type": "vcs",
         "url": "https://github.com/nimbly/minion"
       }
-    ]
+    ],
+
+    "bin": ["bin/minion"]
 
 }

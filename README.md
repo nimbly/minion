@@ -1,20 +1,10 @@
 ## Usage
-**minion <command>[:<action>] <environment> <args>...<args>**
-
-You must provide a command and optionally an action
-
-
-
+**minion \<command\>\[\:\<action\>\] \<environment>**
 
 ## Commands
-
-* **deploy** Actions: **update**, **release**
+* **deploy:release** Deploy a new release
+* **deploy:update** Update current release
 * **rollback** Actions: none
-
-
-
-
-
 
 ## config.yml
 The configuration file format for **minion** is YML.
@@ -67,19 +57,19 @@ The options for the *authentication* sections are as follows:
 
 * **username** [string]
 
-The SSH username.
+	The SSH username to connect with.
 
 * **password** [string] *optional*
 
-The SSH password.
+	The SSH password to use (if not using key based authentication).
 
-* **key** [string]
+* **key** [string] *optional*
 
-Path and file name of RSA key file.
+	Path and file name of RSA key file.
 
-* **passphrase** [string]
+* **passphrase** [string] *optional*
 
-Pass phrase for key (if using key based authentication).
+	Pass phrase for key (if using key based authentication).
 
 
 #### code
@@ -87,30 +77,30 @@ The code section defines how and where your code is stored.
 
 * **scm** [git, svn]
 
-What source code management tool you use.
+	What source code management tool you use.
 
 * **repo** [string]
 
-Repository URL/location
+	Repository URL/location
 
-* **branch** [string]
+* **branch** [string] *optional*
 
-Repo branch (if any)
+	Repository branch (if any)
 
-* **username** [string]
+* **username** [string] *optional*
 
-Repo username
+	Repository username
 
-* **password** [string]
+* **password** [string] *optional*
 
-Repo password
+	Repository password
 
 
 
 #### environments
 This section is where you define your server groups or environments. Each environment has a unique name and a list of
-servers. A server must have a **host** property and optionally a **migrate** property. The **migrate** property if set
-and **true** will trigger a database migration to happen after the deploy.
+servers. A server must have a **host** property and optionally a **migrate** property. The **migrate** property, if set
+and **true**, will trigger a database migration to happen on that server after the deploy.
 
 For example:
 
@@ -149,3 +139,8 @@ environments:
 			  migrate: true
 			- host: staging-002.example.com
 ```
+
+## Customizing
+**minion** can be extended by creating new custom commands and actions as well as custom tasks.
+
+New commands should be placed in the **commands** directory and tasks in the **tasks** directory.
