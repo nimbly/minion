@@ -14,7 +14,7 @@ authentication:
   username: username
   password:
   key: id_rsa.pub
-  passphrase: mysecretpassphrase
+  passphrase: mYsuP3rsecR3tPA55phra5e
 
 environments:
 

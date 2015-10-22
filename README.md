@@ -1,12 +1,15 @@
 ## Usage
 **minion \<command\>\[\:\<action\>\] \<environment>**
 
+**minion** expects a YML config file named **minion.yml** to be in the directory where you run minion from.
+
 ## Commands
 * **deploy:release** Deploy a new release
 * **deploy:update** Update current release
 * **rollback** Actions: none
 
-## config.yml
+
+## minion.yml
 The configuration file format for **minion** is YML.
 
 The first several sections of the config file define *global* config options. Each environment defined may optionally

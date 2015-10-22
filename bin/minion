@@ -1,0 +1,51 @@
+#!/usr/bin/php
+<?php
+
+// composer vendor autoload
+if( file_exists(__DIR__ . "/../../../autoload.php") ) {
+	require_once __DIR__ . "/../../../autoload.php";
+} elseif( file_exists(__DIR__ . "/../vendor/autoload.php") ) {
+	require_once __DIR__ . "/../vendor/autoload.php";
+}
+
+// nimbly/minion's autoloader
+spl_autoload_register(function($class){
+
+	$class = str_replace('\\', '/', $class);
+
+	//error_log("Trying to autoload {$class}\n");
+
+	if( preg_match('/minion\/tasks\/(\w+)/i', $class, $match) ) {
+
+		$file = 'tasks/'.$match[1].'.php';
+
+	}
+	elseif( preg_match('/minion\/commands\/(\w+)/i', $class, $match) ) {
+
+		$file = 'commands/'.$match[1].'.php';
+
+	}
+	elseif( preg_match('/minion\/(\w+\/?)*/i', $class) ) {
+
+		$file = str_replace('minion', 'src', $class).'.php';
+
+	}
+	else {
+		return false;
+	}
+
+	//error_log("Trying to require {$file}\n");
+
+	if( file_exists($file) ) {
+		require_once $file;
+	}
+
+	return false;
+
+});
+
+
+//require_once __DIR__ . '../src/App.php';
+
+$app = new \minion\App;
+$app->run($argv);
