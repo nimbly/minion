@@ -1,12 +1,12 @@
 ## Usage
-**minion \<command\>\[\:\<action\>\] \<environment>**
+**minion \<command\> [arguments]**
 
 **minion** expects a YML config file named **minion.yml** to be in the directory where you run minion from.
 
 ## Commands
-* **deploy:release** Deploy a new release
-* **deploy:update** Update current release
-* **rollback** Actions: none
+* **deploy** Deploy a new release
+* **task** Update current release without doing a deploy
+* **rollback** Remove current release and rollback to previous
 
 
 ## minion.yml
@@ -111,6 +111,7 @@ For example:
 ```yml
 environments:
 	production:
+	    strategy: deploy, permissions, cleanup
 		servers:
 			- host: web-001.example.com
 			  migrate: true
@@ -130,6 +131,7 @@ For example:
 ```yml
 environments:
 	staging:
+ 
 		code:
 			branch: staging
 			
