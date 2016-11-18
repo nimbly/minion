@@ -9,13 +9,14 @@
 namespace minion\tasks;
 
 
+use minion\config\Context;
 use minion\config\Environment;
 use minion\Connection;
 use minion\interfaces\TaskInterface;
 
 class CleanupTask implements TaskInterface {
 
-	public function run(Environment $environment, Connection $connection = null) {
+	public function run(Context $context, Environment $environment, Connection $connection = null) {
 
 		if( ($connection->execute("if [ -d \"{$environment->remote->path}/releases\" ]; then echo 1; fi")) ) {
 

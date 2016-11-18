@@ -1,5 +1,4 @@
 .idea
-*.iml
 vendor/*
 composer.lock
 minion.yml

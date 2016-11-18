@@ -10,36 +10,63 @@ namespace minion\commands;
 
 
 use Bramus\Ansi\ControlSequences\EscapeSequences\Enums\SGR;
+use minion\config\Context;
 use minion\config\Environment;
 use minion\Connection;
 use minion\Console;
+use minion\interfaces\CommandInterface;
 
-class RollbackCommand {
+class RollbackCommand implements CommandInterface {
 
-	public function run(Environment $environment) {
+	public function run(Context $context) {
+
+		// Check for required environment param
+		if( ($env = $context->getArgument(['e', 'environment'])) === null ) {
+			throw new \Exception("No environment specified");
+		}
+
+		// Get the environment config
+		if( ($environment = $context->config->getEnvironment($env)) == false ) {
+			throw new \Exception("No environment config found for \"{$env}\".");
+		}
+
+		// Specific release to roll back to?
+		$specificRelease = $context->getArgument(['r', 'release']);
 
 		foreach( $environment->servers as $server ) {
 
-			$connection = new Connection(array_merge($config['connection'], $server));
+			$connection = new Connection($server, $environment->authentication);
 
-			$releases = $connection->execute("ls {$config['remote']['path']}/releases");
-
+			// get the current releases
+			$releases = $connection->execute("ls {$environment->remote->path}/releases");
 			$releases = explode("\n", trim($releases));
 
-			if( count($releases) > 1 ) {
+			$release = null;
 
-				$release = $releases[count($releases) - 2];
-				$badRelease = $releases[count($releases) - 1];
+			// Specific release to rollback to
+			if( $specificRelease ) {
+				foreach($releases as $r ) {
+					if( $specificRelease == $r ) {
+						$release = $r;
+					}
+				}
 
-				if( $release ) {
-					$connection->execute("cd {$config['remote']['path']}&&rm -f current&&ln -s -r releases/{$release} current");
-					$connection->execute("cd {$config['remote']['path']}/releases&&rm -Rf {$badRelease}");
+				if( !$release ) {
+					throw new \Exception("Release {$specificRelease} not found");
 				}
 			}
-			else {
-				Console::getInstance()->color([SGR::COLOR_FG_WHITE_BRIGHT, SGR::COLOR_BG_RED])
-					   ->text('No more releases to rollback. You\'re on the last one!')->lf()->nostyle();
+
+			// Just rollback to previous release
+			elseif( count($releases) > 1 ) {
+				$release = $releases[count($releases) - 2];
 			}
+
+			else {
+				throw new \Exception("No previous release available");
+			}
+
+			// Do the rollback
+			$connection->execute("cd {$environment->remote->path}&&rm -f current&&ln -s -r releases/{$release} current");
 		}
 	}
 

@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: brent
- * Date: 10/5/15
- * Time: 7:34 PM
+ * Date: 6/17/16
+ * Time: 1:45 PM
  */
 
 namespace minion\tasks;
@@ -14,12 +14,9 @@ use minion\config\Environment;
 use minion\Connection;
 use minion\interfaces\TaskInterface;
 
-class MigrateTask implements TaskInterface {
+class FlushredisTask implements TaskInterface {
 
 	public function run(Context $context, Environment $environment, Connection $connection = null) {
-
-		$connection->execute("cd {$environment->remote->path}/current/migrations&&./phinx migrate -e {$environment->name}", true);
-
+		$connection->execute("sudo redis-cli flushdb");
 	}
-
 }

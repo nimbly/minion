@@ -8,77 +8,43 @@
 
 namespace minion\commands;
 
-use minion\config\Environment;
+use minion\config\Context;
 use minion\Connection;
-use minion\factories\TaskFactory;
+use minion\interfaces\CommandInterface;
+use minion\Task;
 
-class DeployCommand {
+class DeployCommand implements CommandInterface {
 
-	public $actions = [
+	public function run(Context $context) {
 
-		'release' => [
-			'description' => 'Create a new release by cloning repo',
-		],
+		// Check for required environment param
+		if( ($env = $context->getArgument(['e', 'environment'])) === null ) {
+			throw new \Exception("No environment specified");
+		}
 
-		'update' => [
-			'description' => 'Update existing release',
-		],
+		// Get the environment config
+		if( ($environment = $context->config->getEnvironment($env)) == false ) {
+			throw new \Exception("No environment config found for \"{$env}\".");
+		}
 
-	];
-
-
-	/**
-	 * @param Environment $environment
-	 *
-	 * @throws \Exception
-	 */
-	public function release(Environment $environment) {
-
+		// loop through servers and implement strategy on each
 		foreach( $environment->servers as $server ) {
 
-			$connection = new Connection($server, $environment->authentication);
-
-			// Do the deploy
-			TaskFactory::run('Release', $environment, $connection);
-
-			// Check/update permissions
-			TaskFactory::run('Permissions', $environment, $connection);
-
-			// Should we run migrations on this server?
-			if( $server->migrate ) {
-
-				TaskFactory::run('Migrate', $environment, $connection);
+			if( empty($server->strategy) ) {
+				throw new \Exception("No strategy defined! Please define a global strategy, an environment strategy, or a per-server strategy. See manual for more info on strategies.");
 			}
 
-			// Run some cleanup
-			TaskFactory::run('Cleanup', $environment, $connection);
-
-			$connection->close();
-		}
-	}
-
-	/**
-	 * @param Environment $environment
-	 */
-	public function update(Environment $environment) {
-
-		foreach( $environment->servers as $server ) {
-
 			$connection = new Connection($server, $environment->authentication);
 
-			// Do the deploy
-			TaskFactory::run('Update', $environment, $connection);
-
-			// Check/update permissions
-			TaskFactory::run('Permissions', $environment, $connection);
-
-			// Should we run migrations on this server?
-			if( $server->migrate ) {
-				TaskFactory::run('Migrate', $environment, $connection);
+			foreach( $server->strategy as $task ) {
+				Task::run($task, $context, $environment, $connection);
 			}
 
 			$connection->close();
 		}
+
+		$message = trim(`whoami`) . " deployed new API release to {$env}.";
+		exec("curl -X POST \"https://hooks.slack.com/services/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\" -d '{\"text\": \"{$message}\"}'");
 	}
 
 }

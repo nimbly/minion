@@ -9,13 +9,14 @@
 namespace minion\tasks;
 
 
+use minion\config\Context;
 use minion\config\Environment;
 use minion\Connection;
 use minion\interfaces\TaskInterface;
 
 class ReleaseTask implements TaskInterface {
 
-	public function run(Environment $environment, Connection $connection = null) {
+	public function run(Context $context, Environment $environment, Connection $connection = null) {
 
 		// Make sure releases directory exists
 		$connection->execute("mkdir -p {$environment->remote->path}/releases");
@@ -23,33 +24,41 @@ class ReleaseTask implements TaskInterface {
 		// Create a new release
 		$release = date('YmdHis');
 
-		// An override branch/tag was specified
-		if( isset($environment->arguments[0]) ) {
-			$branch = $environment->arguments[0];
-		} else {
+		if( ($branch = $context->getArgument(['b', 'branch'])) === null ) {
 			$branch = $environment->code->branch;
+		}
+
+		if( ($commit = $context->getArgument(['c', 'commit'])) === null ) {
+			$commit = null;
 		}
 
 		// What SCM command?
 		switch( strtolower($environment->code->scm) ) {
 			case 'git':
-				$scmCheckoutCommand = "git clone {$environment->code->repo} --depth=1 --branch {$branch} {$release}";
+				if( $commit ) {
+					$command = "git clone {$environment->code->repo} --branch={$branch} {$release}&&cd {$release}&&git checkout {$commit}";
+				}
+				else {
+					$command = "git clone {$environment->code->repo} --depth=1 --branch={$branch} {$release}";
+				}
 				break;
 
 			case 'svn':
-				$scmCheckoutCommand = "svn checkout {$environment->code->repo} {$release}";
+				$command = "svn checkout {$environment->code->repo} {$release}";
 				break;
 
 			default:
 				throw new \Exception("Unsupported SCM: {$environment->code->scm} should be one of GIT or SVN");
-				exit;
 		}
 
-		// Execute deploy
-		$connection->execute("cd {$environment->remote->path}/releases&&{$scmCheckoutCommand}");
+		// Execute release
+		$connection->execute("cd {$environment->remote->path}/releases&&{$command}");
 
-		// Create symlink
-		$connection->execute("cd {$environment->remote->path}&&rm -f current&&ln -s -r releases/{$release} current");
+		// Remove old symlink
+		$connection->execute("rm -f {$environment->remote->path}/current");
+
+		// Create new symlink
+		$connection->execute("cd {$environment->remote->path}&&ln -s -r releases/{$release} current");
 
 	}
 

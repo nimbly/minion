@@ -6,33 +6,38 @@
  * Time: 4:51 PM
  */
 
-namespace minion\factories;
+namespace minion;
 
 
+use minion\config\Context;
 use minion\config\Environment;
-use minion\Connection;
-use minion\Console;
+use minion\interfaces\TaskInterface;
 
-class TaskFactory {
+class Task {
 
 	/**
 	 * @param $task
+	 * @param Context $context
 	 * @param Environment $environment
 	 * @param Connection|null $connection
 	 *
 	 * @return mixed
 	 * @throws \Exception
 	 */
-	public static function run($task, Environment $environment, Connection $connection = null) {
+	public static function run($task, Context $context, Environment $environment, Connection $connection = null) {
 
-		Console::getInstance()->text("\nRunning ")->bold()->text($task)->nostyle()->text(' task')->lf();
+		//Console::getInstance()->text("\nRunning ")->bold()->text($task)->nostyle()->text(' task')->lf();
+
+		// Normalize task class name
+		$task = ucfirst(strtolower(trim($task)));
 
 		// What task are we running?
 		$taskClass = "\\minion\\tasks\\{$task}Task";
 		if( class_exists($taskClass) == false ) {
-			throw new \Exception("Task {$task} was not found.");
+			throw new \Exception("Task {$taskClass} was not found.");
 		}
 
+		/** @var TaskInterface $task */
 		$task = new $taskClass;
 
 		// Check for run method
@@ -40,7 +45,7 @@ class TaskFactory {
 			throw new \Exception("Task {$task} run method does not exist");
 		}
 
-		return $task->run($environment, $connection);
+		return $task->run($context, $environment, $connection);
 	}
 
 }

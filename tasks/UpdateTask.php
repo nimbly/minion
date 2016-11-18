@@ -9,30 +9,22 @@
 namespace minion\tasks;
 
 
+use minion\config\Context;
 use minion\config\Environment;
 use minion\Connection;
 use minion\interfaces\TaskInterface;
 
 class UpdateTask implements TaskInterface {
 
-	public function run(Environment $environment, Connection $connection = null) {
-
-		// UPDATE method
-		if( $environment->remote->method == 'update' ) {
-			$path = $environment->remote->path;
-
-		// RELEASES method
-		} else {
-			$path = "{$environment->remote->path}/current";
-		}
+	public function run(Context $context, Environment $environment, Connection $connection = null) {
 
 		// What SCM?
 		if( $environment->code->scm == 'git' ) {
-			$connection->execute("cd {$path}&&git reset HEAD&&git pull", true);
+			$connection->execute("cd {$environment->remote->deployPath}&&git reset HEAD&&git pull", true);
 		}
 
 		elseif( $environment->code->scm == 'svn' ) {
-			$connection->execute("cd {$path}&&svn up", true);
+			$connection->execute("cd {$environment->remote->deployPath}&&svn up", true);
 		}
 
 	}

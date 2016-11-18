@@ -34,8 +34,6 @@ spl_autoload_register(function($class) {
 		return false;
 	}
 
-	//error_log("Trying to require {$file}\n");
-
 	if( file_exists($file) ) {
 		require_once $file;
 	}

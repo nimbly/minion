@@ -94,6 +94,10 @@ class Connection {
 
 			Console::getInstance()->bold()->text('OK')->nostyle()->lf();
 		}
+
+		// no timeout - for LARGE repos
+		$this->_connection->setTimeout(null);
+
 	}
 
 	public function isConnected() {
