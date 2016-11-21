@@ -11,6 +11,7 @@ namespace minion;
 
 use minion\config\Context;
 use minion\config\Environment;
+use minion\interfaces\ConnectionInterface;
 use minion\interfaces\TaskInterface;
 
 class Task {
@@ -19,14 +20,14 @@ class Task {
 	 * @param $task
 	 * @param Context $context
 	 * @param Environment $environment
-	 * @param Connection|null $connection
+	 * @param ConnectionInterface|null $connection
 	 *
 	 * @return mixed
 	 * @throws \Exception
 	 */
-	public static function run($task, Context $context, Environment $environment, Connection $connection = null) {
+	public static function run($task, Context $context, Environment $environment, ConnectionInterface $connection = null) {
 
-		//Console::getInstance()->text("\nRunning ")->bold()->text($task)->nostyle()->text(' task')->lf();
+		Console::getInstance()->green()->out("* Running <bold><white>".trim($task)."</white></bold> task");
 
 		// Normalize task class name
 		$task = ucfirst(strtolower(trim($task)));

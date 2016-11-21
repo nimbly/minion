@@ -11,13 +11,13 @@ namespace minion\tasks;
 
 use minion\config\Context;
 use minion\config\Environment;
-use minion\Connection;
+use minion\interfaces\ConnectionInterface;
 use minion\interfaces\TaskInterface;
 
 class ComposerTask implements TaskInterface {
 
-	public function run(Context $context, Environment $environment, Connection $connection = null){
-		$connection->execute("cd {$context->config->remote->deployPath}&&composer install");
+	public function run(Context $context, Environment $environment, ConnectionInterface $connection = null){
+		$connection->execute("cd {$context->config->remote->currentRelease}&&composer install");
 	}
 
 }

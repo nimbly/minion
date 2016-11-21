@@ -12,9 +12,10 @@ namespace minion;
 use Bramus\Ansi\ControlSequences\EscapeSequences\Enums\SGR;
 use minion\config\Authentication;
 use minion\config\Server;
+use minion\interfaces\ConnectionInterface;
 use phpseclib\Crypt\RSA;
 
-class Connection {
+class RemoteConnection implements ConnectionInterface  {
 
 
 	private $id = null;
@@ -52,8 +53,6 @@ class Connection {
 		// Key based authentication
 		if( $authentication->key ) {
 
-			Console::getInstance()->text("Connecting to {$this->id}...");
-
 			if( file_exists($authentication->key) === false ) {
 				throw new \Exception("SSH key file {$authentication->key} not found.");
 			}
@@ -79,20 +78,14 @@ class Connection {
 				throw new \Exception("Unable to authenticate with provided credentials.");
 			}
 
-			Console::getInstance()->bold()->text('OK')->nostyle()->lf();
-
-
 		// Username and password based authentication
 		} else {
-
-			Console::getInstance()->text("Connecting to {$this->id}...");
 
 			// Authenticate
 			if( ($this->_connection->login($authentication->username, $authentication->password)) == false ) {
 				throw new \Exception("Unable to authenticate with provided credentials");
 			}
 
-			Console::getInstance()->bold()->text('OK')->nostyle()->lf();
 		}
 
 		// no timeout - for LARGE repos
@@ -104,34 +97,33 @@ class Connection {
 		return $this->_connection->isConnected();
 	}
 
-	public function execute($command, $logResponse = false) {
+	public function execute($command, $showCommand = false, $showResponse = false) {
 
-		Console::getInstance()->text("Executing ")->bold()->text($command)->nostyle()->text(" on remote server...");
+		if( $showCommand ){
+			Console::getInstance()->inline("\tExecuting <bold>{$command}</bold> ");
+		}
 
 		$response = $this->_connection->exec($command);
 
 		if( $this->_connection->getExitStatus() ) {
-			Console::getInstance()->color([SGR::COLOR_FG_WHITE_BRIGHT, SGR::COLOR_BG_RED])
-				   ->text("FAILED!")->nostyle()->lf();
+			Console::getInstance()->backgroundRed()->brightWhite("FAILED!");
 			throw new \Exception($response);
 		}
 
-		Console::getInstance()->bold()->text('OK')->nostyle()->lf();
+		if( $showCommand ) {
+			Console::getInstance()->bold('OK');
+		}
 
-		if( $logResponse ) {
-			Console::getInstance()->color([SGR::COLOR_BG_WHITE, SGR::COLOR_FG_BLUE])->text(trim($response))->lf()->nostyle();
+
+		if( $showResponse ) {
+			Console::getInstance()->backgroundWhite()->blue(trim($response));
 		}
 
 		return $response;
-
 	}
 
 	public function close() {
-
-		Console::getInstance()->text("Closing connection to {$this->id}...");
 		$this->_connection->disconnect();
-		\minion\Console::getInstance()->bold()->text('OK')->nostyle()->lf();
-
 	}
 
 }

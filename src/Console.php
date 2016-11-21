@@ -9,21 +9,21 @@
 namespace minion;
 
 
-use Bramus\Ansi\Ansi;
-use Bramus\Ansi\Writers\StreamWriter;
+
+use League\CLImate\CLImate;
 
 class Console {
 
 	private static $_self = null;
 
-	/** @var Ansi */
+	/** @var CLImate */
 	private $_console = null;
 
 	public static function getInstance() {
 
 		if( self::$_self === null ) {
 			self::$_self = new self;
-			self::$_self->_console = new Ansi(new StreamWriter());
+			self::$_self->_console = new CLImate;
 		}
 
 		return self::$_self->_console;

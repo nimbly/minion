@@ -16,7 +16,7 @@ echo "New version: {$version}\n\n";
 
 echo "Are you sure you want to do this?  Type 'yes' to continue: ";
 
-$input = fopen ("php://stdin","r");
+$input = fopen("php://stdin", "r");
 $response = trim(fgets($input));
 
 if( strtolower($response) !== 'yes' ){
@@ -24,8 +24,15 @@ if( strtolower($response) !== 'yes' ){
 	exit;
 }
 
+// Update composer.json file with latest version number
+$composer = json_decode(file_get_contents('composer.json'));
+$composer->version = (string)$version;
+file_put_contents('composer.json', json_encode($composer));
+
+// Write version number to disk
 file_put_contents('VERSION', $version);
 
+// Commit & push changes, tag commit and push again
 exec("git commit -am \"Tagging minion version {$version}\"");
 exec("git push");
 exec("git tag {$version}");

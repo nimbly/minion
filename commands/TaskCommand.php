@@ -10,8 +10,8 @@ namespace minion\commands;
 
 
 use minion\config\Context;
-use minion\Connection;
 use minion\interfaces\CommandInterface;
+use minion\RemoteConnection;
 use minion\Task;
 
 class TaskCommand implements CommandInterface {
@@ -24,7 +24,7 @@ class TaskCommand implements CommandInterface {
 		}
 
 		// Get task argument
-		if( ($task = $context->getArgument(['t', 'task'])) === null ) {
+		if( ($task = $context->nextNamedArgument()) == null ){
 			throw new \Exception("No task specified. Specify a task with either -t or --task argument.");
 		}
 
@@ -35,11 +35,10 @@ class TaskCommand implements CommandInterface {
 
 		// loop through servers and run task
 		foreach( $environment->servers as $server ) {
-			$connection = new Connection($server, $environment->authentication);
+			$connection = new RemoteConnection($server, $environment->authentication);
 			Task::run($task, $context, $environment, $connection);
 			$connection->close();
 		}
-
 
 	}
 

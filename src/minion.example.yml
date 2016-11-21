@@ -1,0 +1,55 @@
+remote:
+  method: release
+  keepReleases: 5
+  path: /var/www/html
+
+code:
+  scm: git
+  repo: git@github.com:nimbly/minion.git
+  branch: master
+  username: ~
+  password: ~
+
+authentication:
+  username: username
+  password: ~
+  key: id_rsa.pub
+  passphrase: ~
+
+environments:
+
+  production:
+    migration:
+      path: ~
+      command: "cd /var/www/html/migrations&&./phinx migrate -e production"
+
+    permissions:
+      - path: /var/www/html/app/cache
+        owner: www
+        group: apache
+        mask: g+w
+        recursive: true
+        sudo: true
+
+      - path: /tmp/cachefile
+        owner: www
+        group: apache
+        mask: 660
+        recursive: false
+        sudo: true
+
+    servers:
+      - host: web-001.example.com
+        migrate: true
+      - host: web-002.example.com
+      - host: web-003.example.com
+      - host: web-004.example.com
+
+  staging:
+    remote:
+      method: update
+      path: /var/www/staging/html
+
+    servers:
+      - host: staging.example.com
+        migrate: true

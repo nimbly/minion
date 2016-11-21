@@ -25,22 +25,21 @@ class App {
 
 		$startTime = microtime(true);
 
-		// @todo allow this to be a command line option
-		$configFile = 'minion.yml';
-
 		// Build the environment object. This object gets passed all the way through the stack.
 		try {
 
-			$this->context = new Context($arguments, $configFile);
+			Console::getInstance()->backgroundDarkGray()->brightBlue("# minion // v{$this->version} #");
+
+			$this->context = new Context($arguments);
 			Command::run($this->context);
 
 		} catch( \Exception $e ) {
-
-			echo("[ERROR] {$e->getMessage()}\n");
-
+			Console::getInstance()->backgroundRed()->white("[ERROR] {$e->getMessage()}");
+			//echo("[ERROR] {$e->getMessage()}\n");
 		}
 
-		//Console::getInstance()->lf()->bold()->text("MINION done.")->normal()->text(' time='.round(microtime(true) - $startTime, 3).'s')->lf();
+		Console::getInstance()->backgroundDarkGray()->brightBlue("# minion completed #");
+		//Console::getInstance()->lightGray('time='.round(microtime(true) - $startTime, 3).'s');
 
 	}
 

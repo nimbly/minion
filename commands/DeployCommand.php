@@ -9,7 +9,8 @@
 namespace minion\commands;
 
 use minion\config\Context;
-use minion\Connection;
+use minion\LocalConnection;
+use minion\RemoteConnection;
 use minion\interfaces\CommandInterface;
 use minion\Task;
 
@@ -27,14 +28,21 @@ class DeployCommand implements CommandInterface {
 			throw new \Exception("No environment config found for \"{$env}\".");
 		}
 
+		if( $environment->preDeploy ){
+			$connection = new LocalConnection;
+			foreach( $environment->preDeploy as $task ){
+				Task::run($task, $context, $environment, $connection);
+			}
+		}
+
 		// loop through servers and implement strategy on each
 		foreach( $environment->servers as $server ) {
 
 			if( empty($server->strategy) ) {
-				throw new \Exception("No strategy defined! Please define a global strategy, an environment strategy, or a per-server strategy. See manual for more info on strategies.");
+				throw new \Exception("No strategy defined! Please define a global, environmental, or per-server strategy. See the manual for defining strategies.");
 			}
 
-			$connection = new Connection($server, $environment->authentication);
+			$connection = new RemoteConnection($server, $environment->authentication);
 
 			foreach( $server->strategy as $task ) {
 				Task::run($task, $context, $environment, $connection);
@@ -43,8 +51,13 @@ class DeployCommand implements CommandInterface {
 			$connection->close();
 		}
 
-		$message = trim(`whoami`) . " deployed new API release to {$env}.";
-		exec("curl -X POST \"https://hooks.slack.com/services/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\" -d '{\"text\": \"{$message}\"}'");
+		if( $environment->postDeploy ){
+			$connection = new LocalConnection;
+			foreach( $environment->postDeploy as $task ){
+				Task::run($task, $context, $environment, $connection);
+			}
+		}
+
 	}
 
 }

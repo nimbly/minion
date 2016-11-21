@@ -15,6 +15,7 @@ use minion\config\Environment;
 use minion\Connection;
 use minion\Console;
 use minion\interfaces\CommandInterface;
+use minion\RemoteConnection;
 
 class RollbackCommand implements CommandInterface {
 
@@ -35,7 +36,7 @@ class RollbackCommand implements CommandInterface {
 
 		foreach( $environment->servers as $server ) {
 
-			$connection = new Connection($server, $environment->authentication);
+			$connection = new RemoteConnection($server, $environment->authentication);
 
 			// get the current releases
 			$releases = $connection->execute("ls {$environment->remote->path}/releases");

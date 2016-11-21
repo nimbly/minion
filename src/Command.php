@@ -22,6 +22,8 @@ class Command {
 	 */
 	public static function run(Context $context) {
 
+		Console::getInstance()->backgroundLightGreen()->white()->out("Running <bold>{$context->command}</bold> command");
+
 		$commandClass = "\\minion\\commands\\".ucwords(strtolower($context->command))."Command";
 
 		if( class_exists($commandClass) === false ) {

@@ -11,31 +11,37 @@ namespace minion\tasks;
 
 use minion\config\Context;
 use minion\config\Environment;
-use minion\Connection;
+use minion\interfaces\ConnectionInterface;
 use minion\interfaces\TaskInterface;
 
 class PermissionsTask implements TaskInterface {
 
-	public function run(Context $context, Environment $environment, Connection $connection = null) {
+	public function run(Context $context, Environment $environment, ConnectionInterface $connection = null) {
+
+		$currentRelease = $environment->remote->currentRelease;
 
 		// Make directories
-		$connection->execute("mkdir -p {$environment->remote->deployPath}/bootstrap/cache");
-		$connection->execute("mkdir -p {$environment->remote->deployPath}/storage/app/public");
-		$connection->execute("mkdir -p {$environment->remote->deployPath}/storage/framework/cache");
-		$connection->execute("mkdir -p {$environment->remote->deployPath}/storage/framework/sessions");
-		$connection->execute("mkdir -p {$environment->remote->deployPath}/storage/framework/views");
-		$connection->execute("mkdir -p {$environment->remote->deployPath}/storage/logs");
+		$context->say("\tCreating required directories...");
+		$connection->execute("mkdir -p {$currentRelease}/bootstrap/cache");
+		$connection->execute("mkdir -p {$currentRelease}/storage/app/public");
+		$connection->execute("mkdir -p {$currentRelease}/storage/framework/cache");
+		$connection->execute("mkdir -p {$currentRelease}/storage/framework/sessions");
+		$connection->execute("mkdir -p {$currentRelease}/storage/framework/views");
+		$connection->execute("mkdir -p {$currentRelease}/storage/logs");
 
 		// Change ownership
-		$connection->execute("sudo chown fedora.apache {$environment->remote->deployPath}/storage -R");
-		$connection->execute("sudo chown fedora.apache {$environment->remote->deployPath}/bootstrap/cache -R");
+		$context->say("\tChanging ownership....");
+		$connection->execute("sudo chown fedora.apache {$currentRelease}/storage -R");
+		$connection->execute("sudo chown fedora.apache {$currentRelease}/bootstrap/cache -R");
 
 		// Change permissions
-		$connection->execute("sudo chmod 770 {$environment->remote->deployPath}/storage -R");
-		$connection->execute("sudo chmod 770 {$environment->remote->deployPath}/bootstrap/cache -R");
+		$context->say("\tChanging permissions...");
+		$connection->execute("sudo chmod 770 {$currentRelease}/storage -R");
+		$connection->execute("sudo chmod 770 {$currentRelease}/bootstrap/cache -R");
 
 		// Link up the environment
-		$connection->execute("cd {$environment->remote->deployPath}&&ln -s .env.{$environment->name} .env");
+		$context->say("\tLinking environment config...");
+		$connection->execute("cd {$currentRelease}&&ln -s .env.{$environment->name} .env");
 
 	}
 

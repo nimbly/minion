@@ -11,12 +11,12 @@ namespace minion\tasks;
 
 use minion\config\Context;
 use minion\config\Environment;
-use minion\Connection;
+use minion\interfaces\ConnectionInterface;
 use minion\interfaces\TaskInterface;
 
 class FlushredisTask implements TaskInterface {
 
-	public function run(Context $context, Environment $environment, Connection $connection = null) {
+	public function run(Context $context, Environment $environment, ConnectionInterface $connection = null) {
 		$connection->execute("sudo redis-cli flushdb");
 	}
 }

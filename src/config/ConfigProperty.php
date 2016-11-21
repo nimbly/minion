@@ -8,7 +8,7 @@
 
 namespace minion\config;
 
-class ConfigProperty {
+abstract class ConfigProperty {
 
 	public function __construct(array $data = null) {
 

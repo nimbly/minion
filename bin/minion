@@ -17,25 +17,41 @@ spl_autoload_register(function($class) {
 
 	if( preg_match('/minion\/tasks\/(\w+)/i', $class, $match) ) {
 
-		$file = __DIR__ . '/../tasks/'.$match[1].'.php';
+		$file = "tasks/{$match[1]}.php";
+
+		if( file_exists('tasks/'.$match[1].'.php') ){
+			require_once $file;
+		}
+
+		elseif( file_exists(__DIR__ . '/../'.$file) ){
+			require_once __DIR__ . '/../'.$file;
+		}
+
+		return false;
 
 	}
 	elseif( preg_match('/minion\/commands\/(\w+)/i', $class, $match) ) {
 
-		$file = __DIR__ . '/../commands/'.$match[1].'.php';
+		$file = 'commands/'.$match[1].'.php';
+
+		if( file_exists($file) ){
+			require_once $file;
+		}
+		elseif( file_exists(__DIR__ . '/../' . $file) ){
+			require_once __DIR__ . '/../' . $file;
+		}
+
+		return false;
 
 	}
 	elseif( preg_match('/minion\/(\w+\/?)*/i', $class) ) {
 
 		$file = __DIR__ . '/../' . str_replace('minion', 'src', $class).'.php';
 
-	}
-	else {
-		return false;
-	}
+		if( file_exists($file) ){
+			require_once $file;
+		}
 
-	if( file_exists($file) ) {
-		require_once $file;
 	}
 
 	return false;

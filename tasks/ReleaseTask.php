@@ -11,15 +11,15 @@ namespace minion\tasks;
 
 use minion\config\Context;
 use minion\config\Environment;
-use minion\Connection;
+use minion\interfaces\ConnectionInterface;
 use minion\interfaces\TaskInterface;
 
 class ReleaseTask implements TaskInterface {
 
-	public function run(Context $context, Environment $environment, Connection $connection = null) {
+	public function run(Context $context, Environment $environment, ConnectionInterface $connection = null) {
 
 		// Make sure releases directory exists
-		$connection->execute("mkdir -p {$environment->remote->path}/releases");
+		$connection->execute("mkdir -p {$environment->remote->path}/{$environment->remote->releaseDir}");
 
 		// Create a new release
 		$release = date('YmdHis');
@@ -52,14 +52,13 @@ class ReleaseTask implements TaskInterface {
 		}
 
 		// Execute release
-		$connection->execute("cd {$environment->remote->path}/releases&&{$command}");
+		$connection->execute("cd {$environment->remote->deployTo}&&{$command}");
 
 		// Remove old symlink
-		$connection->execute("rm -f {$environment->remote->path}/current");
+		$connection->execute("rm -f {$environment->remote->currentRelease}");
 
 		// Create new symlink
-		$connection->execute("cd {$environment->remote->path}&&ln -s -r releases/{$release} current");
-
+		$connection->execute("cd {$environment->remote->path}&&ln -s -r {$environment->remote->releaseDir}/{$release} {$environment->remote->symlink}");
 	}
 
 }

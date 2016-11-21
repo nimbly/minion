@@ -9,6 +9,7 @@
 namespace minion\config;
 
 
+use minion\Console;
 use Symfony\Component\Yaml\Parser;
 
 class Context {
@@ -19,50 +20,71 @@ class Context {
 	/** @var array */
 	public $arguments = [];
 
+	/** @var array  */
+	public $namedArguments = [];
+
 	/** @var Config */
 	public $config = null;
 
 	/**
 	 * @param array $arguments
-	 * @param string $configFile
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct($arguments, $configFile) {
+	public function __construct(array $arguments) {
 
-		if( !isset($arguments[1]) ) {
-			echo "Missing command.";
-			exit;
+		$script = array_shift($arguments);
+
+		// Process the named arguments first
+		for( $i = 0; $i < count($arguments); $i++ ){
+			if( preg_match('/^[^\-]+/', $arguments[$i]) ){
+				$this->namedArguments[] = $arguments[$i];
+			}
+			else {
+				$i++;
+			}
 		}
 
-		// First argument passed in is command
-		$this->command = $arguments[1];
-
 		// convert the args into a NvP array
-		$args = implode(' ', array_slice($arguments, 2));
+		$args = implode(' ', $arguments);
 
-		// Process the remaining arguments
+		// Process the remaining options
 		if( preg_match_all('/\-\-?([a-zA-Z0-9]+)((\s?\=\s?)?([^\-]+))?/', $args, $matches, PREG_SET_ORDER) ) {
 			foreach( $matches as $option ) {
 				$this->arguments[$option[1]] = isset($option[4]) ? trim($option[4]) : ''; // keep it as empty string!
 			}
 		}
 
-		// Does file exist?
-		if( file_exists($configFile) === false ) {
-			throw new \Exception("config file {$configFile} not found.");
+		if( ($this->command = array_shift($this->namedArguments)) === null ) {
+			$this->command = 'help';
+			echo "Usage: minion <command> [arguments]\n";
+			exit;
 		}
 
-		// Try to read file
-		if( ($configData = file_get_contents($configFile)) === false ) {
-			throw new \Exception("config file {$configFile} not readable.");
+		// MAKE is the only command that does not require nor need a config file
+		if( $this->command != 'init' ) {
+
+			// Was there a config option passed?
+			if( ($configFile = $this->getArgument(['config'])) === null ){
+				$configFile = 'minion.yml';
+			}
+
+			// Check for file existence
+			if( file_exists($configFile) == false ) {
+				throw new \Exception("config file {$configFile} not found.");
+			}
+
+			// Try to read file
+			if(( $configData = file_get_contents($configFile)) === false ) {
+				throw new \Exception("config file {$configFile} not readable.");
+			}
+
+			// Try to parse the yml file (throws an exception if failed)
+			$yamlParser = new Parser;
+
+			// Create the config
+			$this->config = new Config($yamlParser->parse($configData));
 		}
-
-		// Try to parse the yml file (throws an exception if failed)
-		$yamlParser = new Parser;
-
-		// Create the config
-		$this->config = new Config($yamlParser->parse($configData));
 
 	}
 
@@ -87,5 +109,16 @@ class Context {
 		return null;
 	}
 
+	public function nextNamedArgument(){
+		return array_shift($this->namedArguments);
+	}
+
+	public function say($message){
+		Console::getInstance()->comment($message);
+	}
+
+	public function getConfig(){
+
+	}
 
 }

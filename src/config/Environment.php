@@ -24,7 +24,13 @@ class Environment {
 	public $authentication = null;
 
 	/** @var array  */
+	public $preDeploy = [];
+
+	/** @var array  */
 	public $strategy = [];
+
+	/** @var array */
+	public $postDeploy = [];
 
 	/** @var Server[] */
 	public $servers = [];
@@ -36,7 +42,9 @@ class Environment {
 		$this->code = new Code($environment['code']);
 		$this->remote = new Remote($environment['remote']);
 		$this->authentication = new Authentication($environment['authentication']);
+		$this->preDeploy = isset($environment['preDeploy']) ? explode(',', $environment['preDeploy']) : [];
 		$this->strategy = isset($environment['strategy']) ? explode(',', $environment['strategy']) : [];
+		$this->postDeploy = isset($environment['postDeploy']) ? explode(',', $environment['postDeploy']) : [];
 
 		if( isset($environment['servers']) && is_array($environment['servers']) ) {
 			foreach( $environment['servers'] as $server ) {
@@ -46,7 +54,6 @@ class Environment {
 				}
 
 				$this->servers[] = new Server($server);
-
 			}
 		}
 	}

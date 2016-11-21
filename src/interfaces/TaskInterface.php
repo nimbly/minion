@@ -11,10 +11,9 @@ namespace minion\interfaces;
 
 use minion\config\Context;
 use minion\config\Environment;
-use minion\Connection;
 
 interface TaskInterface {
 
-	public function run(Context $context, Environment $environment, Connection $connection = null);
+	public function run(Context $context, Environment $environment, ConnectionInterface $connection = null);
 
 }
