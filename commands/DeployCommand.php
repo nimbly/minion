@@ -28,13 +28,6 @@ class DeployCommand implements CommandInterface {
 			throw new \Exception("No environment config found for \"{$env}\".");
 		}
 
-		if( $environment->preDeploy ){
-			$connection = new LocalConnection;
-			foreach( $environment->preDeploy as $task ){
-				Task::run($task, $context, $environment, $connection);
-			}
-		}
-
 		// loop through servers and implement strategy on each
 		foreach( $environment->servers as $server ) {
 
@@ -50,14 +43,5 @@ class DeployCommand implements CommandInterface {
 
 			$connection->close();
 		}
-
-		if( $environment->postDeploy ){
-			$connection = new LocalConnection;
-			foreach( $environment->postDeploy as $task ){
-				Task::run($task, $context, $environment, $connection);
-			}
-		}
-
 	}
-
 }

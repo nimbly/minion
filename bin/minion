@@ -13,8 +13,6 @@ spl_autoload_register(function($class) {
 
 	$class = str_replace('\\', '/', $class);
 
-	//error_log("Trying to autoload {$class}\n");
-
 	if( preg_match('/minion\/tasks\/(\w+)/i', $class, $match) ) {
 
 		$file = "tasks/{$match[1]}.php";

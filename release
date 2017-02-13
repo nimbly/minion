@@ -6,8 +6,9 @@ $currentVersion = file_get_contents('VERSION');
 if( isset($argv[1]) ) {
     $version = $argv[1];
 } else {
-	echo "\nERROR: You must provide a version.\n\n";
-	exit;
+    echo "\nCurrent version: {$currentVersion}\n";
+    echo "\n\nERROR: You must provide a version.\n\n";
+    exit;
 }
 
 echo "\nTag and submit a new release of minion.\n\n";
@@ -27,7 +28,7 @@ if( strtolower($response) !== 'yes' ){
 // Update composer.json file with latest version number
 $composer = json_decode(file_get_contents('composer.json'));
 $composer->version = (string)$version;
-file_put_contents('composer.json', json_encode($composer));
+file_put_contents('composer.json', json_encode($composer, JSON_PRETTY_PRINT));
 
 // Write version number to disk
 file_put_contents('VERSION', $version);

@@ -24,8 +24,8 @@ class CleanupTask implements TaskInterface {
 
 			if( ($trim = count($releases) - $environment->remote->keepReleases) > 0 ) {
 				$releases = array_slice($releases, 0, $trim);
+                $context->say("\tPruning old releases");
 				foreach( $releases as $release ) {
-					$context->say("\tPruning {$release}...");
 					$connection->execute("rm -Rf {$environment->remote->deployTo}/{$release}");
 				}
 			}

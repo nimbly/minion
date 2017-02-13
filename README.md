@@ -5,9 +5,8 @@
 
 ## Commands
 * **deploy** Deploy a new release
-* **task** Update current release without doing a deploy
+* **task** Run a single task
 * **rollback** Remove current release and rollback to previous
-
 
 ## minion.yml
 The configuration file format for **minion** is YML.
@@ -102,8 +101,8 @@ The code section defines how and where your code is stored.
 
 #### environments
 This section is where you define your server groups or environments. Each environment has a unique name and a list of
-servers. A server must have a **host** property and optionally a **migrate** property. The **migrate** property, if set
-and **true**, will trigger a database migration to happen on that server after the deploy.
+servers. A server must have a **host** property and a deployment **strategy** consisting of a comma
+separate list of tasks to run (in the order specificed).
 
 For example:
 
@@ -111,13 +110,10 @@ For example:
 ```yml
 environments:
 	production:
-	    strategy: deploy, permissions, cleanup
+	    strategy: release, link, cleanup
 		servers:
 			- host: web-001.example.com
-			  migrate: true
-				
 			- host: web-002.example.com
-			
 			- host: web-003.example.com
 ```
 				
@@ -141,9 +137,40 @@ environments:
 			
 		servers:
 			- host: staging-001.example.com
-			  migrate: true
 			- host: staging-002.example.com
 ```
+
+A server may also override the environment or global deployment strategy. This is useful if you have several servers
+and need to run a migration as it only needs to be run once.
+
+For example:
+
+```yml
+environments:
+	staging:
+
+		code:
+			branch: staging
+			
+		authentication:
+			username: deploy
+			key: staging_id_rsa.pub
+			
+		strategy: release, link, cleanup
+			
+		servers:
+			- host: staging-001.example.com
+			  strategy: release, link, migrate, cleanup
+			- host: staging-002.example.com
+```
+
+## Tasks
+A task is one or more shell commands that are issued on the remote server. minion is preconfigured with four tasks.
+
+* `release` Creates a new release on the server.
+* `link` Symlinks the newly created release to the current release directory (`current` by default).
+* `cleanup` Prunes (deletes) old release directories.
+* `update` Does a code update on the current release (`git pull` or `svn up`)
 
 ## Customizing
 **minion** can be extended by creating new custom commands and actions as well as custom tasks.

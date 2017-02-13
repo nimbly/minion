@@ -16,7 +16,8 @@ use minion\Task;
 
 class TaskCommand implements CommandInterface {
 
-	public function run(Context $context) {
+	public function run(Context $context)
+    {
 
 		// Get environment argument
 		if( ($env = $context->getArgument(['e', 'environment'])) === null ) {

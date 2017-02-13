@@ -22,7 +22,8 @@ class ReleaseTask implements TaskInterface {
 		$connection->execute("mkdir -p {$environment->remote->path}/{$environment->remote->releaseDir}");
 
 		// Create a new release
-		$release = date('YmdHis');
+		$environment->remote->release = date('YmdHis');
+		$context->say("\tCreating release directory {$environment->remote->release}");
 
 		if( ($branch = $context->getArgument(['b', 'branch'])) === null ) {
 			$branch = $environment->code->branch;
@@ -36,15 +37,18 @@ class ReleaseTask implements TaskInterface {
 		switch( strtolower($environment->code->scm) ) {
 			case 'git':
 				if( $commit ) {
-					$command = "git clone {$environment->code->repo} --branch={$branch} {$release}&&cd {$release}&&git checkout {$commit}";
+					$command = "git clone {$environment->code->repo} --branch={$branch} {$environment->remote->release}&&cd {$environment->remote->release}&&git checkout {$commit}";
 				}
 				else {
-					$command = "git clone {$environment->code->repo} --depth=1 --branch={$branch} {$release}";
+					$command = "git clone {$environment->code->repo} --depth=1 --branch={$branch} {$environment->remote->release}";
 				}
+
+                $context->say("\tCloning {$environment->code->repo}");
 				break;
 
 			case 'svn':
-				$command = "svn checkout {$environment->code->repo} {$release}";
+				$command = "svn checkout {$environment->code->repo} {$environment->remote->release}";
+                $context->say("\tChecking out {$environment->code->repo}");
 				break;
 
 			default:
@@ -53,12 +57,6 @@ class ReleaseTask implements TaskInterface {
 
 		// Execute release
 		$connection->execute("cd {$environment->remote->deployTo}&&{$command}");
-
-		// Remove old symlink
-		$connection->execute("rm -f {$environment->remote->currentRelease}");
-
-		// Create new symlink
-		$connection->execute("cd {$environment->remote->path}&&ln -s -r {$environment->remote->releaseDir}/{$release} {$environment->remote->symlink}");
 	}
 
 }
