@@ -1,60 +1,22 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 
-// composer vendor autoload
-if( file_exists(__DIR__ . "/../../../autoload.php") ) {
-	require_once __DIR__ . "/../../../autoload.php";
-} elseif( file_exists(__DIR__ . "/../vendor/autoload.php") ) {
-	require_once __DIR__ . "/../vendor/autoload.php";
-}
+require __DIR__.'/../vendor/autoload.php';
 
-// nimbly/minion's autoloader
-spl_autoload_register(function($class) {
+use Symfony\Component\Console\Application;
 
-	$class = str_replace('\\', '/', $class);
+$application = new Application;
+$application->setName('minion');
+$application->setVersion('2.0');
+$application->addCommands([
+    new \minion\Commands\MakeInitCommand,
+    new \minion\Commands\MakeConfigCommand,
+    new \minion\Commands\MakeCommandCommand,
+    new \minion\Commands\MakeTaskCommand,
 
-	if( preg_match('/minion\/tasks\/(\w+)/i', $class, $match) ) {
+    new \minion\Commands\DeployReleaseCommand,
+    new \minion\Commands\DeployUpdateCommand,
 
-		$file = "tasks/{$match[1]}.php";
-
-		if( file_exists('tasks/'.$match[1].'.php') ){
-			require_once $file;
-		}
-
-		elseif( file_exists(__DIR__ . '/../'.$file) ){
-			require_once __DIR__ . '/../'.$file;
-		}
-
-		return false;
-
-	}
-	elseif( preg_match('/minion\/commands\/(\w+)/i', $class, $match) ) {
-
-		$file = 'commands/'.$match[1].'.php';
-
-		if( file_exists($file) ){
-			require_once $file;
-		}
-		elseif( file_exists(__DIR__ . '/../' . $file) ){
-			require_once __DIR__ . '/../' . $file;
-		}
-
-		return false;
-
-	}
-	elseif( preg_match('/minion\/(\w+\/?)*/i', $class) ) {
-
-		$file = __DIR__ . '/../' . str_replace('minion', 'src', $class).'.php';
-
-		if( file_exists($file) ){
-			require_once $file;
-		}
-
-	}
-
-	return false;
-
-});
-
-$app = new \minion\App;
-$app->run($argv);
+    new \minion\Commands\TaskCommand,
+]);
+$application->run();
