@@ -19,7 +19,7 @@ class PruneTask extends TaskAbstract {
 
 				$this->output->writeln("\t<info>Pruning old releases</info>");
 				foreach( $releases as $release ) {
-					$connection->execute("rm -Rf {$environment->remote->deployTo}/{$release}");
+					$connection->execute("rm -Rf {$environment->remote->getReleases()}/{$release}");
 				}
 			}
 		}

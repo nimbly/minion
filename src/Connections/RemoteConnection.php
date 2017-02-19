@@ -93,7 +93,8 @@ class RemoteConnection extends ConnectionAbstract  {
 
 		$response = $this->connection->exec($command);
 		if( $this->connection->getExitStatus() ) {
-			return false;
+			throw new \Exception("Command failed: {$response}");
+		    return false;
 		}
 
 		return $response;

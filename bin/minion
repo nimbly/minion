@@ -7,6 +7,37 @@ if( file_exists(__DIR__ . "/../../../autoload.php") ) {
     require_once __DIR__ . "/../vendor/autoload.php";
 }
 
+spl_autoload_register(function($class) {
+
+    $class = str_replace('\\', '/', $class);
+
+    if( preg_match('/minion\/Tasks\/(\w+)/i', $class, $match) ) {
+
+        $file = "Tasks/{$match[1]}.php";
+
+        if( file_exists($file) ){
+            require_once $file;
+        }
+
+        return false;
+    }
+
+    elseif( preg_match('/minion\/Commands\/(\w+)/i', $class, $match) ) {
+
+        $file = 'Commands/'.$match[1].'.php';
+
+        if( file_exists($file) ){
+            require_once $file;
+        }
+
+        return false;
+    }
+
+    return false;
+
+});
+
+
 use Symfony\Component\Console\Application;
 
 $version = file_get_contents(__DIR__.'/../VERSION');
