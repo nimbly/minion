@@ -10,7 +10,7 @@ class UpdateTask extends TaskAbstract {
 
 	public function run(Environment $environment, ConnectionAbstract $connection = null) {
 
-	    $connection->cwd($environment->remote->currentRelease);
+	    $connection->cwd($environment->remote->getCurrentRelease());
 
 		if( $environment->code->scm == 'git' ) {
 			$connection->execute("git reset HEAD&&git pull");

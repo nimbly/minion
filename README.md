@@ -92,8 +92,10 @@ The code section defines how and where your code is stored.
 
 #### environments
 This section is where you define your server groups or environments. Each environment has a unique name and a list of
-servers. A server must have a **host** property and a deployment **strategy** consisting of a comma
-separated list of tasks to run (in the order specified).
+servers. You must define a deployment **strategy** and provide an array of **servers**. A server must have a **host** property.
+
+* **strategy** [string] Comma separated list of tasks to run, in the order specified.
+* **servers** [array] Array of servers to deploy to
 
 For example:
 
@@ -188,4 +190,4 @@ For example:
 
 `minion make:task Migrate`
 
-Custom tasks can be found in the `Tasks` directory where you run **minion** from. 
+Custom tasks can be found in the `Tasks` directory where you run **minion** from.

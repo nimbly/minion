@@ -5,9 +5,12 @@ require __DIR__.'/../vendor/autoload.php';
 
 use Symfony\Component\Console\Application;
 
+$version = file_get_contents(__DIR__.'/../VERSION');
 $application = new Application;
 $application->setName('minion');
-$application->setVersion('2.0');
+$application->setVersion($version);
+
+// Built-in commands
 $commands = [
     new \minion\Commands\MakeInitCommand,
     new \minion\Commands\MakeConfigCommand,
@@ -20,7 +23,7 @@ $commands = [
     new \minion\Commands\TaskCommand,
 ];
 
-// Do we have custom commands?
+// Custom commands
 if( file_exists('Commands') ){
     $files = new \DirectoryIterator('Commands');
 
