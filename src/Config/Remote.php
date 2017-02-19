@@ -1,37 +1,34 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: brent
- * Date: 10/11/15
- * Time: 1:55 PM
- */
 
 namespace minion\Config;
 
 
 class Remote extends ConfigProperty {
 
-	public $method = 'release';
 	public $keepReleases = 5;
 	public $path = '/var/www';
 	public $releaseDir = 'releases';
 	public $symlink = 'current';
 
-	// These are generated at construction time
-	public $deployTo = null;
-	public $currentRelease = null;
-    public $release = null;
+    protected $activeRelease;
 
-	public function __construct(array $data) {
-		parent::__construct($data);
+    public function getReleases()
+    {
+        return "{$this->path}/{$this->releaseDir}";
+    }
 
-		if( $this->method == 'release' ) {
-			$this->deployTo = $this->path.'/'.$this->releaseDir;
-			$this->currentRelease = $this->path.'/'.$this->symlink;
-		} else {
-			$this->deployTo = $this->path;
-			$this->currentRelease = $this->path;
-		}
-	}
+    public function getCurrentRelease()
+    {
+        return "{$this->path}/{$this->symlink}";
+    }
 
+    public function setActiveRelease($dirname)
+    {
+        $this->activeRelease = $dirname;
+    }
+
+    public function getActiveRelease()
+    {
+        return "{$this->getReleases()}/{$this->activeRelease}";
+    }
 }

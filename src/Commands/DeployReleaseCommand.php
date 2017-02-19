@@ -3,7 +3,8 @@
 namespace minion\Commands;
 
 
-use minion\Config\Config;
+use minion\Config\Environment;
+use minion\Connections\LocalConnection;
 use minion\Connections\RemoteConnection;
 use minion\Tasks\TaskAbstract;
 use minion\Tasks\TaskManager;
@@ -12,7 +13,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Parser;
 
 class DeployReleaseCommand extends Command
 {
@@ -30,25 +30,23 @@ class DeployReleaseCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $env = $input->getArgument('environment');
-
-        // Read in the config file
-        $configFile = $input->getOption('config');
-
-        if( !file_exists($configFile) ){
-            $output->writeln("<error>Config file {$configFile} not found");
-            return -1;
-        }
-
-        $config = new Config((new Parser)->parse(file_get_contents($configFile)));
-
-        // Get the environment config
-        if( ($environment = $config->setEnvironment($env)) == false ) {
-            $output->writeln("<error>No environment config found for {$env}</error>");
-            return -1;
-        }
+        $environment = new Environment(
+            $input->getOption('config'),
+            $input->getArgument('environment')
+        );
 
         $output->writeln("Running <info>{$this->getName()}</info> command");
+
+        // Pre-deploy (runs before deploy using a local connection)
+        if( $environment->preDeploy ){
+            $output->writeln("Running <info>pre-deploy</info> tasks");
+            $connection = new LocalConnection;
+            foreach( $environment->preDeploy as $task ){
+                /** @var TaskAbstract $task */
+                $task = TaskManager::create($task, $input, $output);
+                $task->run($environment, $connection);
+            }
+        }
 
         // Loop through servers and implement strategy on each
         foreach( $environment->servers as $server ) {
@@ -63,11 +61,24 @@ class DeployReleaseCommand extends Command
 
                 /** @var TaskAbstract $task */
                 $task = TaskManager::create($task, $input, $output);
-                $task->run($config, $connection);
+                $task->run($environment, $connection);
             }
 
             $connection->close();
         }
+
+        // Post-deploy (runs after deploy using a local connection)
+        if( $environment->postDeploy ){
+            $output->writeln("Running <info>post-deploy</info> tasks");
+            $connection = new LocalConnection;
+            foreach( $environment->postDeploy as $task ){
+                /** @var TaskAbstract $task */
+                $task = TaskManager::create($task, $input, $output);
+                $task->run($environment, $connection);
+            }
+        }
+
+        $output->writeln("Done");
 
         return null;
     }

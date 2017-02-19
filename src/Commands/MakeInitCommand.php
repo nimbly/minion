@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: brent
- * Date: 2/17/17
- * Time: 12:23 PM
- */
 
 namespace minion\Commands;
 
@@ -34,8 +28,13 @@ class MakeInitCommand extends Command
             mkdir('Tasks');
         }
 
+        // Make a config file
         $command = $this->getApplication()->find('make:config');
         $command->run(new ArrayInput([]), $output);
+
+        // Create a migrate task
+        $command = $this->getApplication()->find('make:task');
+        $command->run(new ArrayInput(['name' => 'Migrate']), $output);
     }
 
 }

@@ -8,7 +8,7 @@ use Symfony\Component\Console\Application;
 $application = new Application;
 $application->setName('minion');
 $application->setVersion('2.0');
-$application->addCommands([
+$commands = [
     new \minion\Commands\MakeInitCommand,
     new \minion\Commands\MakeConfigCommand,
     new \minion\Commands\MakeCommandCommand,
@@ -18,5 +18,21 @@ $application->addCommands([
     new \minion\Commands\DeployUpdateCommand,
 
     new \minion\Commands\TaskCommand,
-]);
+];
+
+// Do we have custom commands?
+if( file_exists('Commands') ){
+    $files = new \DirectoryIterator('Commands');
+
+    /** @var \DirectoryIterator[] $files */
+    foreach( $files as $file ) {
+        if (preg_match('/^(.+)\.php$/i', $file->getFilename(), $match)) {
+            $className = "\\minion\\Commands\\{$match[1]}";
+            $commands[] = new $className;
+        }
+    }
+}
+
+$application->addCommands($commands);
+$application->setCatchExceptions(true);
 $application->run();

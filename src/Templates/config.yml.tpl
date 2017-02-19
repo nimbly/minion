@@ -21,7 +21,7 @@ environments:
 
   production:
     preDeploy:
-    strategy: release, link, cleanup
+    strategy: release, link, prune
     postDeploy:
     servers:
       - host: server-001.prod.example.com
@@ -31,7 +31,7 @@ environments:
 
   staging:
     preDeploy:
-    strategy: release, link, cleanup
+    strategy: release, link, prune
     postDeploy:
     servers:
       - host: staging.server.com

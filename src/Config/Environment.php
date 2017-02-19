@@ -1,13 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: brent
- * Date: 10/11/15
- * Time: 2:10 PM
- */
 
 namespace minion\Config;
 
+
+use Symfony\Component\Yaml\Parser;
 
 class Environment {
 
@@ -35,22 +31,56 @@ class Environment {
 	/** @var Server[] */
 	public $servers = [];
 
-	public function __construct($name, $environment) {
+    /**
+     * Environment constructor.
+     * @param $configFile
+     * @param $environment
+     * @throws \Exception
+     */
+    public function __construct($configFile, $environment) {
 
-		$this->name = $name;
+        if( !file_exists($configFile) ){
+            throw new \Exception("Config file {$configFile} not found");
+        }
 
-		$this->code = new Code($environment['code']);
-		$this->remote = new Remote($environment['remote']);
-		$this->authentication = new Authentication($environment['authentication']);
-		$this->preDeploy = isset($environment['preDeploy']) ? explode(',', $environment['preDeploy']) : [];
-		$this->strategy = isset($environment['strategy']) ? explode(',', $environment['strategy']) : [];
-		$this->postDeploy = isset($environment['postDeploy']) ? explode(',', $environment['postDeploy']) : [];
+        $config = (new Parser)->parse(file_get_contents($configFile));
 
-		if( isset($environment['servers']) && is_array($environment['servers']) ) {
-			foreach( $environment['servers'] as $server ) {
+        if( !isset($config['environments']) ||
+            !is_array($config['environments']) ||
+            !isset($config['environments'][$environment]) ){
+            throw new \Exception("Undefined environment \"{$environment}\"");
+        }
+
+        $env = $config['environments'][$environment];
+
+        $env['code'] = array_merge(
+            isset($config['code']) ? $config['code'] : [],
+            isset($env['code']) ? $env['code'] : []
+        );
+
+        $env['remote'] = array_merge(
+            isset($config['remote']) ? $config['remote'] : [],
+            isset($env['remote']) ? $env['remote'] : []
+        );
+
+        $env['authentication'] = array_merge(
+            isset($config['authentication']) ? $config['authentication'] : [],
+            isset($env['authentication']) ? $env['authentication'] : []
+        );
+
+		$this->name = $environment;
+		$this->code = new Code($env['code']);
+		$this->remote = new Remote($env['remote']);
+		$this->authentication = new Authentication($env['authentication']);
+		$this->preDeploy = isset($env['preDeploy']) ? explode(',', $env['preDeploy']) : [];
+		$this->strategy = isset($env['strategy']) ? explode(',', $env['strategy']) : [];
+		$this->postDeploy = isset($env['postDeploy']) ? explode(',', $env['postDeploy']) : [];
+
+		if( isset($env['servers']) && is_array($env['servers']) ) {
+			foreach( $env['servers'] as $server ) {
 
 				if( !isset($server['strategy']) || empty($server['strategy']) ) {
-					$server['strategy'] = $environment['strategy'];
+					$server['strategy'] = $env['strategy'];
 				}
 
 				$this->servers[] = new Server($server);

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: brent
- * Date: 10/11/15
- * Time: 2:16 PM
- */
 
 namespace minion\Config;
 

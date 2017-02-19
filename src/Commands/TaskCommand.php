@@ -1,15 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: brent
- * Date: 2/17/17
- * Time: 1:14 PM
- */
 
 namespace minion\Commands;
 
 
-use minion\Config\Config;
+use minion\Config\Environment;
 use minion\Connections\RemoteConnection;
 use minion\Tasks\TaskAbstract;
 use minion\Tasks\TaskManager;
@@ -18,7 +12,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Parser;
 
 class TaskCommand extends Command
 {
@@ -37,31 +30,12 @@ class TaskCommand extends Command
     {
         $output->writeln("<info>Running {$input->getArgument('task')} in {$input->getArgument('environment')}</info>");
 
-        if( ($host = $input->getOption('host')) ){
-            $output->writeln("<info>Running it only on host {$host}</info>");
-        }
+        $environment = new Environment(
+            $input->getOption('config'),
+            $input->getArgument('environment')
+        );
 
-        $env = $input->getArgument('environment');
-
-        // Read in the config file
-        $configFile = $input->getOption('config');
-
-        if( !file_exists($configFile) ){
-            $output->writeln("<error>Config file {$configFile} not found");
-            return -1;
-        }
-
-        $config = new Config((new Parser)->parse(file_get_contents($configFile)));
-
-        // Get the environment config
-        if( ($environment = $config->setEnvironment($env)) == false ) {
-            $output->writeln("<error>No environment config found for {$env}</error>");
-            return -1;
-        }
-
-        if( ($host = $input->getOption('host')) == false ){
-            $host = null;
-        }
+        $host = $input->getOption('host');
 
         // Loop through servers and run task
         foreach( $environment->servers as $server ) {
@@ -71,7 +45,7 @@ class TaskCommand extends Command
                 ($host && $host == $server->host) ){
                 /** @var TaskAbstract $task */
                 $task = TaskManager::create($task, $input, $output);
-                $task->run($config, $connection);
+                $task->run($environment, $connection);
             }
         }
 

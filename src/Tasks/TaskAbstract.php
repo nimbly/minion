@@ -2,7 +2,7 @@
 
 namespace minion\Tasks;
 
-use minion\Config\Config;
+use minion\Config\Environment;
 use minion\Connections\ConnectionAbstract;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,5 +25,5 @@ abstract class TaskAbstract {
         $this->output = $output;
     }
 
-    abstract public function run(Config $config, ConnectionAbstract $connection = null);
+    abstract public function run(Environment $environment, ConnectionAbstract $connection = null);
 }

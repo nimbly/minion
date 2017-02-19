@@ -3,23 +3,25 @@
 namespace minion\Tasks;
 
 
-use minion\Config\Config;
+use minion\Config\Environment;
 use minion\Connections\ConnectionAbstract;
 
 class ReleaseTask extends TaskAbstract {
 
-	public function run(Config $config, ConnectionAbstract $connection = null) {
+	public function run(Environment $environment, ConnectionAbstract $connection = null) {
 
 		// Make sure releases directory exists
-		$connection->execute("mkdir -p {$config->environment->remote->path}/{$config->environment->remote->releaseDir}");
+		$connection->execute("mkdir -p {$environment->remote->getReleases()}");
 
 		// Create a new release
-		$config->environment->remote->release = date('YmdHis');
+		$release = date('YmdHis');
 
-		$this->output->writeln("\t<info>Creating release directory {$config->environment->remote->release}</info>");
+		$environment->remote->setActiveRelease($release);
+
+		$this->output->writeln("\t<info>Creating release directory {$release}</info>");
 
 		if( ($branch = $this->input->getOption('branch')) === null ) {
-			$branch = $config->environment->code->branch;
+			$branch = $environment->code->branch;
 		}
 
 		if( ($commit = $this->input->getOption('commit')) === null ) {
@@ -27,30 +29,30 @@ class ReleaseTask extends TaskAbstract {
 		}
 
 		// What SCM command?
-		switch( strtolower($config->environment->code->scm) ) {
+		switch( strtolower($environment->code->scm) ) {
 			case 'git':
 				if( $commit ) {
-					$command = "git clone {$config->environment->code->repo} --branch={$branch} {$config->environment->remote->release}&&cd {$config->environment->remote->release}&&git checkout {$commit}";
+					$command = "git clone {$environment->code->repo} --branch={$branch} {$release}&&cd {$release}&&git checkout {$commit}";
 				}
 				else {
-					$command = "git clone {$config->environment->code->repo} --depth=1 --branch={$branch} {$config->environment->remote->release}";
+					$command = "git clone {$environment->code->repo} --depth=1 --branch={$branch} {$release}";
 				}
 
-				$this->output->writeln("\t<info>Cloning {$config->environment->code->repo}</info>");
+				$this->output->writeln("\t<info>Cloning {$environment->code->repo}</info>");
 				break;
 
 			case 'svn':
-				$command = "svn checkout {$config->environment->code->repo} {$config->environment->remote->release}";
-				$this->output->writeln("\t<info>Checking out {$config->environment->code->repo}</info>");
+				$command = "svn checkout {$environment->code->repo} {$release}";
+				$this->output->writeln("\t<info>Checking out {$environment->code->repo}</info>");
 				break;
 
 			default:
-			    $this->output->writeln("<error>Unsupported SCM: {$config->environment->code->scm} should be one of \"git\"or \"svn\"</error>");
+			    $this->output->writeln("<error>Unsupported SCM: {$environment->code->scm} should be one of \"git\"or \"svn\"</error>");
 			    return -1;
 		}
 
 		// Execute release
-		$connection->execute("cd {$config->environment->remote->deployTo}&&{$command}");
+		$connection->execute("cd {$environment->remote->getReleases()}&&{$command}");
 
 		return null;
 	}

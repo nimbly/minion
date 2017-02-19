@@ -1,15 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: brent
- * Date: 2/17/17
- * Time: 12:27 PM
- */
 
 namespace minion\Commands;
 
 
-use minion\Config\Config;
+use minion\Config\Environment;
 use minion\Connections\RemoteConnection;
 use minion\Tasks\TaskAbstract;
 use minion\Tasks\TaskManager;
@@ -18,7 +12,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Parser;
 
 class DeployUpdateCommand extends Command
 {
@@ -34,23 +27,10 @@ class DeployUpdateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $env = $input->getArgument('environment');
-
-        // Read in the config file
-        $configFile = $input->getOption('config');
-
-        if( !file_exists($configFile) ){
-            $output->writeln("<error>Config file {$configFile} not found");
-            return -1;
-        }
-
-        $config = new Config((new Parser)->parse(file_get_contents($configFile)));
-
-        // Get the environment config
-        if( ($environment = $config->setEnvironment($env)) == false ) {
-            $output->writeln("<error>No environment config found for {$env}</error>");
-            return -1;
-        }
+        $environment = new Environment(
+            $input->getOption('config'),
+            $input->getArgument('environment')
+        );
 
         $output->writeln("Running <info>{$this->getName()}</info> command");
 
@@ -60,7 +40,7 @@ class DeployUpdateCommand extends Command
 
             /** @var TaskAbstract $task */
             $task = TaskManager::create('Update', $input, $output);
-            $task->run($config, $connection);
+            $task->run($environment, $connection);
 
             $connection->close();
         }

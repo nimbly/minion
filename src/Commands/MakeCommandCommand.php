@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: brent
- * Date: 2/17/17
- * Time: 12:17 PM
- */
 
 namespace minion\Commands;
 
@@ -22,28 +16,30 @@ class MakeCommandCommand extends Command
         $this->setName('make:command')
             ->setDescription('Make a new command')
             ->setHelp('Make a new command')
-            ->addArgument('command', InputArgument::REQUIRED, 'Name of the command to make');
+            ->addArgument('name', InputArgument::REQUIRED, 'Name of the command to make');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $command = ucfirst(strtolower($input->getArgument('command')));
-        $filename = "{$command}Command.php";
+        $command = ucfirst($input->getArgument('name'));
+        $filename = "{$command}.php";
         $path = "Commands";
 
         if( file_exists($path) == false ){
-            $output->writeln("<error>Commands directory not found. Have you run \"minion init\" yet?</error>");
+            mkdir('Commands');
         }
 
         $output->writeln("<info>Creating {$command} command</info>");
 
+        // Does file name already exist?
         if( file_exists("{$path}/{$filename}") ){
             $output->writeln("<error>File \"{$path}/{$filename}\" already exists</error>");
             return -1;
         }
 
+        // Write new command to disk
         $template = file_get_contents(__DIR__.'/../Templates/Command.php.tpl');
-        $template = preg_replace('/\:CommandName/', "{$command}Command", $template);
+        $template = preg_replace('/\:CommandName/', $command, $template);
         file_put_contents("{$path}/{$filename}", $template);
 
         return null;

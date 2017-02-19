@@ -3,3 +3,4 @@ vendor/*
 composer.lock
 minion.yml
 Tasks/
+Commands/

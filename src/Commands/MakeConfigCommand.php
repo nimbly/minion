@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: brent
- * Date: 2/17/17
- * Time: 12:52 PM
- */
 
 namespace minion\Commands;
 
@@ -33,7 +27,7 @@ class MakeConfigCommand extends Command
         $name = $input->getOption('name');
 
         if( file_exists($name) ) {
-            $output->writeln("<error>Config file {$name} already exists.</error>");
+            $output->writeln("<error>Config file {$name} already exists</error>");
             return -1;
         }
 

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: brent
- * Date: 2/17/17
- * Time: 12:20 PM
- */
 
 namespace minion\Commands;
 
@@ -22,12 +16,12 @@ class MakeTaskCommand extends Command
         $this->setName('make:task')
             ->setDescription('Make a new task')
             ->setHelp('Make a new task')
-            ->addArgument('task', InputArgument::REQUIRED, 'Name of the task to create');
+            ->addArgument('name', InputArgument::REQUIRED, 'Name of the task to create');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $task = ucfirst(strtolower($input->getArgument('task')));
+        $task = ucfirst(strtolower($input->getArgument('name')));
         $filename = "{$task}Task.php";
         $path = "Tasks";
 

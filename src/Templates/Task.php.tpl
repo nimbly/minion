@@ -2,13 +2,13 @@
 
 namespace minion\Tasks;
 
-use minion\Config\Config;
+use minion\Config\Environment;
 use minion\Connections\ConnectionInterface;
 
 class :TaskName extends TaskAbstract
 {
 
-	public function run(Config $config, ConnectionInterface $connection = null)
+	public function run(Environment $environment, ConnectionInterface $connection = null)
 	{
 		// TODO: Implement run() method.
 	}
