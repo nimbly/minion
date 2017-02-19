@@ -1,6 +1,6 @@
 {
     "name": "nimbly\/minion",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "description": "Framework and language agnostic remote deployment automation tool",
     "keywords": [
         "deployment",
