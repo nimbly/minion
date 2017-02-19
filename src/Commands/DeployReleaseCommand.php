@@ -51,6 +51,8 @@ class DeployReleaseCommand extends Command
         // Loop through servers and implement strategy on each
         foreach( $environment->servers as $server ) {
 
+            $output->writeln("Deploying to <info>{$server->host}</info>");
+
             if( empty($server->strategy) ) {
                 $output->writeln("<error>No deployment strategy defined</error>");
             }

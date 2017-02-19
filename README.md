@@ -96,9 +96,10 @@ servers. You must define a deployment **strategy** and provide an array of **ser
 
 * **strategy** [string] Comma separated list of tasks to run, in the order specified.
 * **servers** [array] Array of servers to deploy to
+* **preDeploy** [string] Comma separated list of tasks to run before the deploy happens. These tasks will be run on the local machine (i.e. not remotely).
+* **postDeploy** [string] Comma separate list of tasks to run after the deploy happens. These tasks will be run on the local machine (i.e. not remotely).
 
 For example:
-
 
 ```yml
 environments:
@@ -173,7 +174,7 @@ To create a new command:
 
 For example:
 
-`minion make:command CacheCommand`
+`minion make:command CacheFlushCommand`
 
 Custom commands can be found in the `Commands` directory where you run **minion** from.
 

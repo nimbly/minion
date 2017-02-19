@@ -19,6 +19,7 @@ $commands = [
 
     new \minion\Commands\DeployReleaseCommand,
     new \minion\Commands\DeployUpdateCommand,
+    new \minion\Commands\DeployRollbackCommand,
 
     new \minion\Commands\TaskCommand,
 ];
