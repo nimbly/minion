@@ -18,8 +18,6 @@ class ReleaseTask extends TaskAbstract {
 
 		$environment->remote->setActiveRelease($release);
 
-		$this->output->writeln("\t<info>Creating release directory {$release}</info>");
-
 		if( ($branch = $this->input->getOption('branch')) === null ) {
 			$branch = $environment->code->branch;
 		}
@@ -37,18 +35,14 @@ class ReleaseTask extends TaskAbstract {
 				else {
 					$command = "git clone {$environment->code->repo} --depth=1 --branch={$branch} {$release}";
 				}
-
-				$this->output->writeln("\t<info>Cloning {$environment->code->repo}</info>");
 				break;
 
 			case 'svn':
 				$command = "svn checkout {$environment->code->repo} {$release}";
-				$this->output->writeln("\t<info>Checking out {$environment->code->repo}</info>");
 				break;
 
 			default:
-			    $this->output->writeln("<error>Unsupported SCM: {$environment->code->scm} should be one of \"git\"or \"svn\"</error>");
-			    return -1;
+			    throw new \Exception('Unsupported SCM');
 		}
 
 		// Execute release

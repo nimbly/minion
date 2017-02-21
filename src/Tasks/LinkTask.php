@@ -11,11 +11,8 @@ class LinkTask extends TaskAbstract
     public function run(Environment $environment, ConnectionAbstract $connection = null)
     {
         if( empty($environment->remote->getActiveRelease()) ){
-            $this->output->writeln("\t<info>Skipping. No active release found.");
-            return;
+            throw new \Exception('No active release in progress');
         }
-
-        $this->output->writeln("\t<info>Linking new release</info>");
 
         // Remove old symlink
         $connection->execute("rm -f {$environment->remote->getCurrentRelease()}");

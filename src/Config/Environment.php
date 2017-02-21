@@ -72,13 +72,29 @@ class Environment {
 		$this->code = new Code($env['code']);
 		$this->remote = new Remote($env['remote']);
 		$this->authentication = new Authentication($env['authentication']);
-		$this->preDeploy = isset($env['preDeploy']) ? explode(',', $env['preDeploy']) : [];
-		$this->strategy = isset($env['strategy']) ? explode(',', $env['strategy']) : [];
-		$this->postDeploy = isset($env['postDeploy']) ? explode(',', $env['postDeploy']) : [];
+
+		if( isset($env['preDeploy']) ){
+            $this->preDeploy = array_map('trim', explode(',', $env['preDeploy']));
+        } else {
+		    $this->preDeploy = [];
+        }
+
+        if( isset($env['strategy']) ){
+            $this->strategy = array_map('trim', explode(',', $env['strategy']));
+        } else {
+            $this->strategy = [];
+        }
+
+        if( isset($env['postDeploy']) ){
+            $this->postDeploy = array_map('trim', explode(',', $env['postDeploy']));
+        } else {
+            $this->postDeploy = [];
+        }
 
 		if( isset($env['servers']) && is_array($env['servers']) ) {
 			foreach( $env['servers'] as $server ) {
 
+			    // Use the environment strategy as the default for every server
 				if( !isset($server['strategy']) || empty($server['strategy']) ) {
 					$server['strategy'] = $env['strategy'];
 				}

@@ -13,13 +13,13 @@ class TaskManager {
      * @param InputInterface $input
      * @param OutputInterface $output
 	 *
-	 * @return mixed
+	 * @return TaskAbstract
 	 * @throws \Exception
 	 */
 	public static function create($task, InputInterface $input, OutputInterface $output) {
 
 		// Normalize task class name
-		$task = ucfirst(strtolower(trim($task)));
+		$task = ucfirst(strtolower($task));
 
 		// What task are we running?
 		$taskClass = "\\minion\\Tasks\\{$task}Task";

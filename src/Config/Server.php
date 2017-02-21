@@ -9,10 +9,9 @@ class Server extends ConfigProperty {
 	public $port = 22;
 	public $strategy = [];
 
-
 	public function __construct(array $server) {
 		parent::__construct($server);
-		$this->strategy = explode(',', $server['strategy']);
+		$this->strategy = array_map('trim', explode(',', $server['strategy']));
 	}
 
 }

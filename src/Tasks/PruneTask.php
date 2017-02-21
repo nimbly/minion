@@ -17,7 +17,6 @@ class PruneTask extends TaskAbstract {
 			if( ($trim = count($releases) - $environment->remote->keepReleases) > 0 ) {
 				$releases = array_slice($releases, 0, $trim);
 
-				$this->output->writeln("\t<info>Pruning old releases</info>");
 				foreach( $releases as $release ) {
 					$connection->execute("rm -Rf {$environment->remote->getReleases()}/{$release}");
 				}

@@ -9,10 +9,12 @@ use minion\Connections\RemoteConnection;
 use minion\Tasks\TaskAbstract;
 use minion\Tasks\TaskManager;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeployReleaseCommand extends Command
 {
@@ -35,53 +37,86 @@ class DeployReleaseCommand extends Command
             $input->getArgument('environment')
         );
 
-        $output->writeln("Running <info>{$this->getName()}</info> command");
+        $style = new SymfonyStyle($input, $output);
+        $style->title("Deploying new release on <info>{$environment->name}</info>");
 
-        // Pre-deploy (runs before deploy using a local connection)
+        // Pre-deploy tasks
         if( $environment->preDeploy ){
-            $output->writeln("Running <info>pre-deploy</info> tasks");
-            $connection = new LocalConnection;
-            foreach( $environment->preDeploy as $task ){
-                /** @var TaskAbstract $task */
-                $task = TaskManager::create($task, $input, $output);
-                $task->run($environment, $connection);
-            }
+            $style->section("Running pre-deploy tasks");
+            $this->doLocalTasks($environment->preDeploy, $environment, $input, $output);
         }
 
         // Loop through servers and implement strategy on each
         foreach( $environment->servers as $server ) {
-
-            $output->writeln("Deploying to <info>{$server->host}</info>");
-
             if( empty($server->strategy) ) {
-                $output->writeln("<error>No deployment strategy defined</error>");
+                throw new \Exception("No deployment strategy defined for \"{$environment->name}\"");
             }
+
+            $style->section("Applying release strategy on <info>{$server->host}</info>");
 
             $connection = new RemoteConnection($server, $environment->authentication);
 
+            $progressBar = $this->defaultProgressBar($output, count($server->strategy));
+
             foreach( $server->strategy as $task ) {
+                $progressBar->setMessage("Running <info>{$task}</info> task");
 
                 /** @var TaskAbstract $task */
                 $task = TaskManager::create($task, $input, $output);
                 $task->run($environment, $connection);
+
+                $progressBar->advance();
             }
 
+            $progressBar->setMessage("Done");
+            $progressBar->finish();
             $connection->close();
+            $style->writeln("");
         }
 
-        // Post-deploy (runs after deploy using a local connection)
+        // Post deploy tasks
         if( $environment->postDeploy ){
-            $output->writeln("Running <info>post-deploy</info> tasks");
-            $connection = new LocalConnection;
-            foreach( $environment->postDeploy as $task ){
-                /** @var TaskAbstract $task */
-                $task = TaskManager::create($task, $input, $output);
-                $task->run($environment, $connection);
-            }
+            $style->section("Running post-deploy tasks");
+            $this->doLocalTasks($environment->postDeploy, $environment, $input, $output);
         }
 
-        $output->writeln("Done");
+        $style->writeln("");
+        $style->success("Release complete");
 
         return null;
+    }
+
+    protected function doLocalTasks(array $tasks, Environment $environment, InputInterface $input, OutputInterface $output)
+    {
+        // Local tasks
+        if( $tasks ){
+            $connection = new LocalConnection;
+            $progressBar = $this->defaultProgressBar($output, count($environment->preDeploy));
+            foreach( $tasks as $task ){
+                $progressBar->setMessage("Running <info>{$task}</info> task");
+
+                /** @var TaskAbstract $task */
+                $task = TaskManager::create($task, $input, $output);
+                $task->run($environment, $connection);
+
+                $progressBar->advance();
+            }
+
+            $progressBar->setMessage("Done");
+            $progressBar->finish();
+        } else {
+            $output->writeln('<info>None</info>');
+        }
+    }
+
+    protected function defaultProgressBar(OutputInterface $output, $max = null)
+    {
+        $progressBar = new ProgressBar($output, $max);
+        $progressBar->setFormatDefinition('custom', " %current%/%max% [%bar%] %percent:3s%% / %message%");
+        $progressBar->setEmptyBarCharacter('░'); // light shade character \u2591
+        $progressBar->setProgressCharacter('');
+        $progressBar->setBarCharacter('▓'); // dark shade character \u2593
+        $progressBar->setFormat('custom');
+        return $progressBar;
     }
 }
