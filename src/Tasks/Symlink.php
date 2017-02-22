@@ -6,9 +6,9 @@ namespace minion\Tasks;
 use minion\Config\Environment;
 use minion\Connections\ConnectionAbstract;
 
-class LinkTask extends TaskAbstract
+class Symlink extends TaskAbstract
 {
-    public function run(Environment $environment, ConnectionAbstract $connection = null)
+    public function run(Environment $environment, ConnectionAbstract $connection)
     {
         if( empty($environment->remote->getActiveRelease()) ){
             throw new \Exception('No active release in progress');

@@ -8,7 +8,7 @@ use minion\Connections\ConnectionAbstract;
 class :TaskName extends TaskAbstract
 {
 
-	public function run(Environment $environment, ConnectionAbstract $connection = null)
+	public function run(Environment $environment, ConnectionAbstract $connection)
 	{
 		// TODO: Implement run() method.
 	}

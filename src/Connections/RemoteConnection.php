@@ -10,9 +10,6 @@ use phpseclib\Net\SSH2;
 
 class RemoteConnection extends ConnectionAbstract  {
 
-    /** @var string */
-	private $id;
-
 	/** @var SSH2 */
 	private $connection;
 
@@ -22,10 +19,8 @@ class RemoteConnection extends ConnectionAbstract  {
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct(Server $server = null, Authentication $authentication = null) {
-		if( $server && $authentication ) {
-			$this->connect($server, $authentication);
-		}
+	public function __construct(Server $server, Authentication $authentication) {
+        $this->connect($server, $authentication);
 	}
 
     /**
@@ -35,8 +30,6 @@ class RemoteConnection extends ConnectionAbstract  {
 	 * @throws \Exception
 	 */
 	public function connect(Server $server, Authentication $authentication) {
-
-		$this->id = "{$authentication->username}@{$server->host}:{$server->port}";
 
 		$this->connection = new SSH2($server->host, $server->port);
 
@@ -51,19 +44,26 @@ class RemoteConnection extends ConnectionAbstract  {
 				throw new \Exception("Error while reading key file {$authentication->key}.");
 			}
 
-			// Check for DSA key -- this isn't the best way to do it, but better than nothing
-			// PHPSECLIB loadKey does not return FALSE when loading a DSA key...
+			// Check for DSA key -- this isn't the best way to do it, but better than nothing.
+			// PHPSECLIB loadKey does not return FALSE when loading a DSA key.
 			if( preg_match('/DSA PRIVATE KEY/i', $key) ) {
 				throw new \Exception("PHPSECLIB does not support DSA keys.");
 			}
 
 			// Load the key
 			$rsa = new RSA;
+
+			// Key requires passphrase
+			if( $authentication->passphrase ){
+			    $rsa->setPassword($authentication->passphrase);
+            }
+
+            // Load the key
 			if( ($rsa->loadKey($key)) === false ) {
 				throw new \Exception("Unknown or unsupported key type {$authentication->key}. Only RSA keys are supported.");
 			}
 
-			// Authenticate
+			// Authenticate/login
 			if( ($this->connection->login($authentication->username, $rsa)) == false ) {
 				throw new \Exception("Unable to authenticate with provided credentials.");
 			}
@@ -82,24 +82,29 @@ class RemoteConnection extends ConnectionAbstract  {
 		$this->connection->setTimeout(null);
 	}
 
-	public function isConnected() {
-		return $this->connection->isConnected();
-	}
-
+    /**
+     * Command to execute
+     *
+     * @param $command
+     * @return string
+     * @throws \Exception
+     */
 	public function execute($command) {
-	    if( $this->currentDirectory ){
-	        $command = "cd {$this->currentDirectory}&&{$command}";
+	    if( $this->pwd() ){
+	        $command = "cd {$this->pwd()}&&{$command}";
         }
 
 		$response = $this->connection->exec($command);
 		if( $this->connection->getExitStatus() ) {
 			throw new \Exception("Command failed: {$response}");
-		    return false;
 		}
 
 		return $response;
 	}
 
+    /**
+     * Close the SSH connection
+     */
 	public function close() {
 		$this->connection->disconnect();
 	}

@@ -3,6 +3,8 @@
 namespace minion\Config;
 
 
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Parser;
 
 class Environment {
@@ -30,6 +32,9 @@ class Environment {
 
 	/** @var Server[] */
 	public $servers = [];
+
+	/** @var array  */
+	protected $paramBag = [];
 
     /**
      * Environment constructor.
@@ -103,4 +108,41 @@ class Environment {
 			}
 		}
 	}
+
+    /**
+     * Set a custom parameter
+     *
+     * @param $name
+     * @param $value
+     */
+	public function set($name, $value)
+    {
+        $this->paramBag[$name] = $value;
+    }
+
+    /**
+     * Get a custom parameter
+     *
+     * @param $name
+     * @return mixed|null
+     */
+    public function get($name)
+    {
+        if( array_key_exists($name, $this->paramBag) ){
+            return $this->paramBag[$name];
+        }
+
+        return null;
+    }
+
+    public function defaultProgressBar(OutputInterface $output, $max = null)
+    {
+        $progressBar = new ProgressBar($output, $max);
+        $progressBar->setFormatDefinition('custom', " %current%/%max% [%bar%] %percent:3s%% / %message%");
+        $progressBar->setEmptyBarCharacter('░'); // light shade character \u2591
+        $progressBar->setProgressCharacter('');
+        $progressBar->setBarCharacter('▓'); // dark shade character \u2593
+        $progressBar->setFormat('custom');
+        return $progressBar;
+    }
 }

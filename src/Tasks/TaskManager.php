@@ -22,7 +22,7 @@ class TaskManager {
 		$task = ucfirst(strtolower($task));
 
 		// What task are we running?
-		$taskClass = "\\minion\\Tasks\\{$task}Task";
+		$taskClass = "\\minion\\Tasks\\{$task}";
 		if( class_exists($taskClass) == false ) {
 			throw new \Exception("Task {$taskClass} was not found.");
 		}

@@ -6,9 +6,9 @@ namespace minion\Tasks;
 use minion\Config\Environment;
 use minion\Connections\ConnectionAbstract;
 
-class UpdateTask extends TaskAbstract {
+class Update extends TaskAbstract {
 
-	public function run(Environment $environment, ConnectionAbstract $connection = null) {
+	public function run(Environment $environment, ConnectionAbstract $connection) {
 
 	    $connection->cwd($environment->remote->getCurrentRelease());
 

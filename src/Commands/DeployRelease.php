@@ -16,14 +16,14 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class DeployReleaseCommand extends Command
+class DeployRelease extends Command
 {
 
     protected function configure()
     {
         $this->setName('deploy:release')
             ->setDescription('Start a release deployment')
-            ->setHelp('Release your code specified environment')
+            ->setHelp('Creates a new release of your code on the specified environment')
             ->addArgument('environment', InputArgument::REQUIRED, 'Environment to deploy to')
             ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Config file', 'minion.yml')
             ->addOption('branch', null, InputOption::VALUE_OPTIONAL, 'Branch to use', 'master')
@@ -44,10 +44,10 @@ class DeployReleaseCommand extends Command
         if( $environment->preDeploy ){
             $style->section("Running <info>pre-deploy</info> tasks");
             $this->doLocalTasks($environment->preDeploy, $environment, $input, $output);
-            $style->writeln("");
+            $style->newLine();
         }
 
-        $style->section("Applying release strategy on servers");
+        $style->section("Applying strategy on servers");
 
         // Loop through servers and implement strategy on each
         foreach( $environment->servers as $server ) {
@@ -58,7 +58,7 @@ class DeployReleaseCommand extends Command
             $style->comment($server->host);
 
             $connection = new RemoteConnection($server, $environment->authentication);
-            $progressBar = $this->defaultProgressBar($output, count($server->strategy));
+            $progressBar = $environment->defaultProgressBar($output, count($server->strategy));
 
             $progressBar->setMessage('Connecting');
             $progressBar->display();
@@ -76,18 +76,18 @@ class DeployReleaseCommand extends Command
             $progressBar->setMessage("Done");
             $progressBar->finish();
             $connection->close();
-            $style->writeln("\n");
+            $style->newLine(2);
         }
 
         // Post deploy tasks
         if( $environment->postDeploy ){
-            $style->writeln("");
+            $style->newLine();
             $style->section("Running <info>post-deploy</info> tasks");
             $this->doLocalTasks($environment->postDeploy, $environment, $input, $output);
-            $style->writeln("");
+            $style->newLine();
         }
 
-        $style->writeln("");
+        $style->newLine();
         $style->success("Release complete");
 
         return null;
@@ -98,7 +98,7 @@ class DeployReleaseCommand extends Command
         // Local tasks
         if( $tasks ){
             $connection = new LocalConnection;
-            $progressBar = $this->defaultProgressBar($output, count($environment->preDeploy));
+            $progressBar = $environment->defaultProgressBar($output, count($environment->preDeploy));
             foreach( $tasks as $task ){
                 $progressBar->setMessage("Running <info>{$task}</info> task");
 
@@ -111,21 +111,8 @@ class DeployReleaseCommand extends Command
 
             $progressBar->setMessage("Done");
             $progressBar->finish();
-        } else {
-            $output->writeln('<info>None</info>');
+            $output->writeln('');
         }
-
-        $output->writeln('');
     }
 
-    protected function defaultProgressBar(OutputInterface $output, $max = null)
-    {
-        $progressBar = new ProgressBar($output, $max);
-        $progressBar->setFormatDefinition('custom', " %current%/%max% [%bar%] %percent:3s%% / %message%");
-        $progressBar->setEmptyBarCharacter('░'); // light shade character \u2591
-        $progressBar->setProgressCharacter('');
-        $progressBar->setBarCharacter('▓'); // dark shade character \u2593
-        $progressBar->setFormat('custom');
-        return $progressBar;
-    }
 }

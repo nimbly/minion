@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class DeployRollbackCommand extends Command
+class DeployRollback extends Command
 {
 
     protected function configure()
@@ -44,10 +44,10 @@ class DeployRollbackCommand extends Command
         // Specific release to roll back to?
         $specificRelease = $input->getOption('release');
 
-        $progressBar = $this->defaultProgressBar($output, count($environment->servers));
+        $progressBar = $environment->defaultProgressBar($output, count($environment->servers));
 
         foreach( $environment->servers as $server ) {
-            $progressBar->setMessage("Rolling back <info>{$server->host}</info>");
+            $progressBar->setMessage("{$server->host}");
 
             $connection = new RemoteConnection($server, $environment->authentication);
 
@@ -89,18 +89,7 @@ class DeployRollbackCommand extends Command
         $progressBar->setMessage('Done');
         $progressBar->finish();
 
-        $style->writeln("\n");
+        $style->newLine(2);
         $style->success("Rollback complete");
-    }
-
-    protected function defaultProgressBar(OutputInterface $output, $max = null)
-    {
-        $progressBar = new ProgressBar($output, $max);
-        $progressBar->setFormatDefinition('custom', " %current%/%max% [%bar%] %percent:3s%% / %message%");
-        $progressBar->setEmptyBarCharacter('░'); // light shade character \u2591
-        $progressBar->setProgressCharacter('');
-        $progressBar->setBarCharacter('▓'); // dark shade character \u2593
-        $progressBar->setFormat('custom');
-        return $progressBar;
     }
 }

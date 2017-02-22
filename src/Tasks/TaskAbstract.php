@@ -25,5 +25,5 @@ abstract class TaskAbstract {
         $this->output = $output;
     }
 
-    abstract public function run(Environment $environment, ConnectionAbstract $connection = null);
+    abstract public function run(Environment $environment, ConnectionAbstract $connection);
 }

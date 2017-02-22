@@ -8,8 +8,6 @@ code:
   scm: git
   repo: git@github.com:MyOrg/repo.git
   branch: master
-  username: ~
-  password: ~
 
 authentication:
   username: user
@@ -21,18 +19,18 @@ environments:
 
   production:
     preDeploy:
-    strategy: release, link, prune
+    strategy: release, symlink, prune
     postDeploy:
     servers:
       - host: server-001.prod.example.com
-        strategy: release, migrate, link, cleanup
+        strategy: release, migrate, symlink, prune
       - host: server-002.prod.example.com
       - host: server-003.prod.example.com
 
   staging:
     preDeploy:
-    strategy: release, link, prune
+    strategy: release, symlink, prune
     postDeploy:
     servers:
       - host: staging.server.com
-        strategy: release, link, cleanup
+        strategy: release, symlink, prune

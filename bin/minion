@@ -47,16 +47,14 @@ $application->setVersion($version);
 
 // Built-in commands
 $commands = [
-    new \minion\Commands\MakeInitCommand,
-    new \minion\Commands\MakeConfigCommand,
-    new \minion\Commands\MakeCommandCommand,
-    new \minion\Commands\MakeTaskCommand,
+    new \minion\Commands\MakeInit,
+    new \minion\Commands\MakeConfig,
+    new \minion\Commands\MakeCommand,
+    new \minion\Commands\MakeTask,
 
-    new \minion\Commands\DeployReleaseCommand,
-    new \minion\Commands\DeployUpdateCommand,
-    new \minion\Commands\DeployRollbackCommand,
-
-    new \minion\Commands\TaskCommand,
+    new \minion\Commands\DeployRelease,
+    new \minion\Commands\DeployUpdate,
+    new \minion\Commands\DeployRollback,
 ];
 
 // Custom commands

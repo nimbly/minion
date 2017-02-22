@@ -6,9 +6,9 @@ namespace minion\Tasks;
 use minion\Config\Environment;
 use minion\Connections\ConnectionAbstract;
 
-class ReleaseTask extends TaskAbstract {
+class Release extends TaskAbstract {
 
-	public function run(Environment $environment, ConnectionAbstract $connection = null) {
+	public function run(Environment $environment, ConnectionAbstract $connection) {
 
 		// Make sure releases directory exists
 		$connection->execute("mkdir -p {$environment->remote->getReleases()}");

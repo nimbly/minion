@@ -10,14 +10,13 @@ class LocalConnection extends ConnectionAbstract
 {
 	public function execute($command){
 
-	    if( $this->currentDirectory ){
-	        $command = "cd {$this->currentDirectory}&&{$command}";
+	    if( $this->pwd() ){
+	        $command = "cd {$this->pwd()}&&{$command}";
         }
 
 		$response = system($command, $status);
-
 		if( $status ) {
-            return false;
+            throw new \Exception("Command failed: {$response}");
 		}
 
 		return $response;
