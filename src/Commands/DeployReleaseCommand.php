@@ -42,9 +42,12 @@ class DeployReleaseCommand extends Command
 
         // Pre-deploy tasks
         if( $environment->preDeploy ){
-            $style->section("Running pre-deploy tasks");
+            $style->section("Running <info>pre-deploy</info> tasks");
             $this->doLocalTasks($environment->preDeploy, $environment, $input, $output);
+            $style->writeln("");
         }
+
+        $style->section("Applying release strategy on servers");
 
         // Loop through servers and implement strategy on each
         foreach( $environment->servers as $server ) {
@@ -52,11 +55,13 @@ class DeployReleaseCommand extends Command
                 throw new \Exception("No deployment strategy defined for \"{$environment->name}\"");
             }
 
-            $style->section("Applying release strategy on <info>{$server->host}</info>");
+            $style->comment($server->host);
 
             $connection = new RemoteConnection($server, $environment->authentication);
-
             $progressBar = $this->defaultProgressBar($output, count($server->strategy));
+
+            $progressBar->setMessage('Connecting');
+            $progressBar->display();
 
             foreach( $server->strategy as $task ) {
                 $progressBar->setMessage("Running <info>{$task}</info> task");
@@ -71,13 +76,15 @@ class DeployReleaseCommand extends Command
             $progressBar->setMessage("Done");
             $progressBar->finish();
             $connection->close();
-            $style->writeln("");
+            $style->writeln("\n");
         }
 
         // Post deploy tasks
         if( $environment->postDeploy ){
-            $style->section("Running post-deploy tasks");
+            $style->writeln("");
+            $style->section("Running <info>post-deploy</info> tasks");
             $this->doLocalTasks($environment->postDeploy, $environment, $input, $output);
+            $style->writeln("");
         }
 
         $style->writeln("");
@@ -107,6 +114,8 @@ class DeployReleaseCommand extends Command
         } else {
             $output->writeln('<info>None</info>');
         }
+
+        $output->writeln('');
     }
 
     protected function defaultProgressBar(OutputInterface $output, $max = null)
