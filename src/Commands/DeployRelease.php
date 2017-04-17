@@ -26,7 +26,7 @@ class DeployRelease extends Command
             ->setHelp('Creates a new release of your code on the specified environment')
             ->addArgument('environment', InputArgument::REQUIRED, 'Environment to deploy to')
             ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Config file', 'minion.yml')
-            ->addOption('branch', null, InputOption::VALUE_OPTIONAL, 'Branch to use', 'master')
+            ->addOption('branch', null, InputOption::VALUE_OPTIONAL, 'Branch to use')
             ->addOption('commit', null, InputOption::VALUE_OPTIONAL, 'Commit to use');
     }
 
