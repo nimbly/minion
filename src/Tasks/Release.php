@@ -35,18 +35,18 @@ class Release extends TaskAbstract {
 				else {
 					$command = "git clone {$environment->code->repo} --depth=1 --branch={$branch} {$release}";
 				}
+                $connection->execute("cd {$environment->remote->getReleases()}&&{$command}");
+                $environment->code->setActiveCommit($connection->execute("cd {$environment->remote->getReleases()}/{$release}&&git rev-parse HEAD"));
 				break;
 
 			case 'svn':
 				$command = "svn checkout {$environment->code->repo} {$release}";
+                $connection->execute("cd {$environment->remote->getReleases()}&&{$command}");
 				break;
 
 			default:
 			    throw new \Exception('Unsupported SCM');
 		}
-
-		// Execute release
-		$connection->execute("cd {$environment->remote->getReleases()}&&{$command}");
 
 		return null;
 	}
