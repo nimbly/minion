@@ -8,6 +8,7 @@ class Code extends ConfigProperty {
 	public $repo;
 	public $branch;
 	public $commitHash;
+	public $commitAuthor;
 
 	public function setActiveCommit($hash)
     {
@@ -18,4 +19,14 @@ class Code extends ConfigProperty {
     {
         return $this->commitHash;
     }
+
+    public function setActiveCommitAuthor($name)
+	{
+		$this->commitAuthor = $name;
+	}
+
+	public function getActiveCommitAuthor()
+	{
+		return $this->commitAuthor;
+	}
 }

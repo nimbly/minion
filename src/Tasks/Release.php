@@ -37,6 +37,7 @@ class Release extends TaskAbstract {
 				}
                 $connection->execute("cd {$environment->remote->getReleases()}&&{$command}");
                 $environment->code->setActiveCommit($connection->execute("cd {$environment->remote->getReleases()}/{$release}&&git rev-parse HEAD"));
+                $environment->code->setActiveCommitAuthor($connection->execute("cd {$environment->remote->getReleases()}/{$release}&&git log {$environment->code->getActiveCommit()}.. --format='%an'"));
 				break;
 
 			case 'svn':
