@@ -35,8 +35,8 @@ class Release extends TaskAbstract {
 				else {
 					$command = "git clone {$environment->code->repo} --depth=1 --branch={$branch} {$release}";
 				}
-                $connection->execute("cd {$environment->remote->getReleases()}&&{$command}");
-                $environment->code->setActiveCommit($connection->execute("cd {$environment->remote->getReleases()}/{$release}&&git rev-parse HEAD"));
+				$connection->execute("cd {$environment->remote->getReleases()}&&{$command}");
+				$environment->code->setActiveCommit(trim($connection->execute("cd {$environment->remote->getReleases()}/{$release}&&git rev-parse HEAD")));
                 $environment->code->setActiveCommitAuthor($connection->execute("cd {$environment->remote->getReleases()}/{$release}&&git log {$environment->code->getActiveCommit()}.. --format='%an'"));
 				break;
 
