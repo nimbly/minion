@@ -1,6 +1,5 @@
 {
-    "name": "nimbly\/minion",
-    "version": "2.2.1",
+    "name": "nimbly/minion",
     "description": "Framework and language agnostic remote deployment automation tool",
     "keywords": [
         "deployment",
@@ -12,14 +11,14 @@
     "authors": [
         {
             "name": "Brent Scheffler",
-            "email": "brent@nimbly.io"
+            "email": "brent@brentscheffler.com"
         }
     ],
     "require": {
-        "php": ">=7.0",
-        "symfony\/console": "~4.0",
-        "symfony\/yaml": "^4.0",
-        "phpseclib\/phpseclib": "~2.0"
+        "php": "^8.0",
+        "symfony/console": "^6.0",
+        "symfony/yaml": "^6.0",
+        "phpseclib/phpseclib": "~2.0"
     },
     "autoload": {
         "psr-4": {
@@ -29,13 +28,7 @@
             ]
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https:\/\/github.com\/nimbly\/minion"
-        }
-    ],
     "bin": [
-        "bin\/minion"
+        "bin/minion"
     ]
 }
