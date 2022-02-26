@@ -26,5 +26,11 @@ abstract class ConnectionAbstract
 		return $this->currentDirectory;
 	}
 
-	abstract public function execute(string $command): mixed;
+	/**
+	 * Execute a command.
+	 *
+	 * @param string $command
+	 * @return string|null
+	 */
+	abstract public function execute(string $command): ?string;
 }

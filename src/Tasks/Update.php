@@ -11,11 +11,18 @@ class Update extends TaskAbstract
 	{
 		$connection->cwd($environment->remote->getCurrentRelease());
 
-		$command = match($environment->code->scm) {
-			"git" => "git reset HEAD&&git pull",
-			"svn" => "svn up",
-			default => throw new \Exception("Unsupported SCM")
-		};
+		switch( $environment->code->scm ) {
+			case "git":
+				$command = "git reset HEAD&&git pull";
+				break;
+
+			case "svn":
+				$command = "svn up";
+				break;
+
+			default:
+				throw new \Exception("Unsupported SCM");
+		}
 
 		$connection->execute($command);
 	}

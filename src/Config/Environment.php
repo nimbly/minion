@@ -121,7 +121,7 @@ class Environment
 	 * @param string $name
 	 * @return mixed|null
 	 */
-	public function get(string $name): mixed
+	public function get(string $name)
 	{
 		return $this->paramBag[$name] ?? null;
 	}

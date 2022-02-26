@@ -15,9 +15,9 @@
         }
     ],
     "require": {
-        "php": "^8.0",
-        "symfony/console": "^6.0",
-        "symfony/yaml": "^6.0",
+        "php": ">=7.4||^8.0",
+        "symfony/console": "^5.0",
+        "symfony/yaml": "^5.0",
         "phpseclib/phpseclib": "^2.0"
     },
     "autoload": {

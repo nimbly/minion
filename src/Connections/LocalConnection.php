@@ -4,7 +4,7 @@ namespace minion\Connections;
 
 class LocalConnection extends ConnectionAbstract
 {
-	public function execute(string $command)
+	public function execute(string $command): ?string
 	{
 		if( $this->pwd() ){
 			$command = "cd {$this->pwd()}&&{$command}";
