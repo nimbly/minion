@@ -54,7 +54,7 @@ class DeployRelease extends Command
 			$style->comment($server->host);
 
 			$connection = new RemoteConnection($server, $environment->authentication);
-			$progressBar = $environment->defaultProgressBar($output, count($server->strategy));
+			$progressBar = $environment->defaultProgressBar($output, \count($server->strategy));
 
 			$progressBar->setMessage("Connecting");
 			$progressBar->display();

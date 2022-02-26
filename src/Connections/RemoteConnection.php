@@ -2,7 +2,6 @@
 
 namespace minion\Connections;
 
-
 use minion\Config\Authentication;
 use minion\Config\Server;
 use phpseclib\Crypt\RSA;
@@ -36,17 +35,19 @@ class RemoteConnection extends ConnectionAbstract
 		// Key based authentication
 		if( $authentication->key ) {
 
-			if( file_exists($authentication->key) === false ) {
+			if( \file_exists($authentication->key) === false ) {
 				throw new \Exception("SSH key file {$authentication->key} not found.");
 			}
 
-			if( ($key = file_get_contents($authentication->key)) === false ) {
+			$key = \file_get_contents($authentication->key);
+
+			if( $key === false ) {
 				throw new \Exception("Error while reading key file {$authentication->key}.");
 			}
 
 			// Check for DSA key -- this isn't the best way to do it, but better than nothing.
 			// PHPSECLIB loadKey does not return FALSE when loading a DSA key.
-			if( preg_match('/DSA PRIVATE KEY/i', $key) ) {
+			if( \preg_match("/DSA PRIVATE KEY/i", $key) ) {
 				throw new \Exception("PHPSECLIB does not support DSA keys.");
 			}
 
@@ -98,6 +99,7 @@ class RemoteConnection extends ConnectionAbstract
 		}
 
 		$response = $this->connection->exec($command);
+
 		if( $this->connection->getExitStatus() ) {
 			throw new \Exception("Command failed: {$response}");
 		}
