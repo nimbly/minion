@@ -20,7 +20,6 @@ class RemoteConnection extends ConnectionAbstract
 	public function __construct(Server $server, Authentication $authentication)
 	{
 		$this->connection = $this->connect($server, $authentication);
-		$this->currentDirectory = $this->execute("pwd");
 	}
 
 	/**
