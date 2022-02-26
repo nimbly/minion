@@ -1,73 +1,73 @@
 #!/usr/bin/env php
 <?php
 
-if( file_exists(__DIR__ . "/../../../autoload.php") ) {
-    require_once __DIR__ . "/../../../autoload.php";
-} elseif( file_exists(__DIR__ . "/../vendor/autoload.php") ) {
-    require_once __DIR__ . "/../vendor/autoload.php";
+if( \file_exists(__DIR__ . "/../../../autoload.php") ) {
+	require_once __DIR__ . "/../../../autoload.php";
+} elseif( \file_exists(__DIR__ . "/../vendor/autoload.php") ) {
+	require_once __DIR__ . "/../vendor/autoload.php";
 }
 
-spl_autoload_register(function($class) {
+\spl_autoload_register(
+	function(string $class) {
 
-    $class = str_replace('\\', '/', $class);
+		$class = \str_replace("\\", "/", $class);
 
-    if( preg_match('/minion\/Tasks\/(\w+)/i', $class, $match) ) {
+		if( \preg_match("/minion\/Tasks\/(\w+)/i", $class, $match) ) {
 
-        $file = "Tasks/{$match[1]}.php";
+			$file = "Tasks/" . $match[1] . ".php";
 
-        if( file_exists($file) ){
-            require_once $file;
-        }
+			if( \file_exists($file) ){
+				require_once $file;
+			}
 
-        return false;
-    }
+			return false;
+		}
 
-    elseif( preg_match('/minion\/Commands\/(\w+)/i', $class, $match) ) {
+		elseif( \preg_match("/minion\/Commands\/(\w+)/i", $class, $match) ) {
 
-        $file = 'Commands/'.$match[1].'.php';
+			$file = "Commands/" . $match[1] . ".php";
 
-        if( file_exists($file) ){
-            require_once $file;
-        }
+			if( \file_exists($file) ){
+				require_once $file;
+			}
 
-        return false;
-    }
+			return false;
+		}
 
-    return false;
-
-});
-
+		return false;
+	}
+);
 
 use Symfony\Component\Console\Application;
 
-$version = file_get_contents(__DIR__.'/../VERSION');
-$application = new Application;
-$application->setName('minion');
-$application->setVersion($version);
+$application = new Application(
+	"minion",
+	\file_get_contents(__DIR__ . "/../VERSION")
+);
 
 // Built-in commands
 $commands = [
-    new \minion\Commands\MakeInit,
-    new \minion\Commands\MakeConfig,
-    new \minion\Commands\MakeCommand,
-    new \minion\Commands\MakeTask,
+	new \minion\Commands\MakeInit,
+	new \minion\Commands\MakeConfig,
+	new \minion\Commands\MakeCommand,
+	new \minion\Commands\MakeTask,
 
-    new \minion\Commands\DeployRelease,
-    new \minion\Commands\DeployUpdate,
-    new \minion\Commands\DeployRollback,
+	new \minion\Commands\DeployRelease,
+	new \minion\Commands\DeployUpdate,
+	new \minion\Commands\DeployRollback,
 ];
 
 // Custom commands
-if( file_exists('Commands') ){
-    $files = new \DirectoryIterator('Commands');
+if( \file_exists("Commands") ){
+	$files = new \DirectoryIterator("Commands");
 
-    /** @var \DirectoryIterator[] $files */
-    foreach( $files as $file ) {
-        if (preg_match('/^(.+)\.php$/i', $file->getFilename(), $match)) {
-            $className = "\\minion\\Commands\\{$match[1]}";
-            $commands[] = new $className;
-        }
-    }
+	/** @var array<\DirectoryIterator> $files */
+	foreach( $files as $file ) {
+		if( \preg_match("/^(.+)\.php$/i", $file->getFilename(), $match) ) {
+			$className = "\\minion\\Commands\\{$match[1]}";
+			$commands[] = new $className;
+		}
+	}
 }
 
 $application->addCommands($commands);

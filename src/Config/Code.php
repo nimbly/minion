@@ -2,30 +2,30 @@
 
 namespace minion\Config;
 
+class Code extends ConfigProperty
+{
+	public string $scm = 'git';
+	public string $repo;
+	public string $branch;
+	public ?string $commitHash;
+	public ?string $commitAuthor;
 
-class Code extends ConfigProperty {
-	public $scm = 'git';
-	public $repo;
-	public $branch;
-	public $commitHash;
-	public $commitAuthor;
+	public function setActiveCommit(string $hash): void
+	{
+		$this->commitHash = $hash;
+	}
 
-	public function setActiveCommit($hash)
-    {
-        $this->commitHash = $hash;
-    }
+	public function getActiveCommit(): ?string
+	{
+		return $this->commitHash;
+	}
 
-    public function getActiveCommit()
-    {
-        return $this->commitHash;
-    }
-
-    public function setActiveCommitAuthor($name)
+	public function setActiveCommitAuthor(string $name): void
 	{
 		$this->commitAuthor = $name;
 	}
 
-	public function getActiveCommitAuthor()
+	public function getActiveCommitAuthor(): ?string
 	{
 		return $this->commitAuthor;
 	}

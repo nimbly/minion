@@ -1,36 +1,27 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: brent
- * Date: 10/11/15
- * Time: 4:09 PM
- */
 
 namespace minion\Config;
 
-abstract class ConfigProperty {
-
-	public function __construct(array $data = null) {
-
+abstract class ConfigProperty
+{
+	public function __construct(array $data = [])
+	{
 		if( $data ) {
 			foreach( $data as $property => $value ) {
-				if( property_exists($this, $property) ) {
+				if( \property_exists($this, $property) ) {
 					$this->{$property} = $value;
 				}
 			}
 		}
-
 	}
 
-	public function toArray() {
-
+	public function toArray(): array
+	{
 		$array = [];
-		foreach( get_object_vars($this) as $property ) {
+		foreach( \get_object_vars($this) as $property ) {
 			$array[$property] = $this->{$property};
 		}
 
 		return $array;
-
 	}
-
 }

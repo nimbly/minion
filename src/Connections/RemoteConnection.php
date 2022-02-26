@@ -8,10 +8,9 @@ use minion\Config\Server;
 use phpseclib\Crypt\RSA;
 use phpseclib\Net\SSH2;
 
-class RemoteConnection extends ConnectionAbstract  {
-
-	/** @var SSH2 */
-	private $connection;
+class RemoteConnection extends ConnectionAbstract
+{
+	private SSH2 $connection;
 
 	/**
 	 * @param Server $server
@@ -19,19 +18,20 @@ class RemoteConnection extends ConnectionAbstract  {
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct(Server $server, Authentication $authentication) {
-        $this->connect($server, $authentication);
+	public function __construct(Server $server, Authentication $authentication)
+	{
+		$this->connection = $this->connect($server, $authentication);
+		$this->currentDirectory = $this->execute("pwd");
 	}
 
-    /**
+	/**
 	 * @param Server $server
 	 * @param Authentication $authentication
-	 *
 	 * @throws \Exception
 	 */
-	public function connect(Server $server, Authentication $authentication) {
-
-		$this->connection = new SSH2($server->host, $server->port);
+	protected function connect(Server $server, Authentication $authentication): SSH2
+	{
+		$connection = new SSH2($server->host, $server->port);
 
 		// Key based authentication
 		if( $authentication->key ) {
@@ -55,16 +55,16 @@ class RemoteConnection extends ConnectionAbstract  {
 
 			// Key requires passphrase
 			if( $authentication->passphrase ){
-			    $rsa->setPassword($authentication->passphrase);
-            }
+				$rsa->setPassword($authentication->passphrase);
+			}
 
-            // Load the key
+			// Load the key
 			if( ($rsa->loadKey($key)) === false ) {
 				throw new \Exception("Unknown or unsupported key type {$authentication->key}. Only RSA keys are supported.");
 			}
 
 			// Authenticate/login
-			if( ($this->connection->login($authentication->username, $rsa)) == false ) {
+			if( ($connection->login($authentication->username, $rsa)) == false ) {
 				throw new \Exception("Unable to authenticate with provided credentials.");
 			}
 
@@ -72,27 +72,30 @@ class RemoteConnection extends ConnectionAbstract  {
 		} else {
 
 			// Authenticate
-			if( ($this->connection->login($authentication->username, $authentication->password)) == false ) {
+			if( ($connection->login($authentication->username, $authentication->password)) == false ) {
 				throw new \Exception("Unable to authenticate with provided credentials");
 			}
 
 		}
 
 		// no timeout - for LARGE repos
-		$this->connection->setTimeout(null);
+		$connection->setTimeout(null);
+
+		return $connection;
 	}
 
-    /**
-     * Command to execute
-     *
-     * @param $command
-     * @return string
-     * @throws \Exception
-     */
-	public function execute($command) {
-	    if( $this->pwd() ){
-	        $command = "cd {$this->pwd()}&&{$command}";
-        }
+	/**
+	 * Command to execute
+	 *
+	 * @param string $command
+	 * @return string
+	 * @throws \Exception
+	 */
+	public function execute(string $command): string
+	{
+		if( $this->pwd() ){
+			$command = "cd {$this->pwd()}&&{$command}";
+		}
 
 		$response = $this->connection->exec($command);
 		if( $this->connection->getExitStatus() ) {
@@ -102,11 +105,11 @@ class RemoteConnection extends ConnectionAbstract  {
 		return $response;
 	}
 
-    /**
-     * Close the SSH connection
-     */
-	public function close() {
+	/**
+	 * Close the SSH connection
+	 */
+	public function close(): void
+	{
 		$this->connection->disconnect();
 	}
-
 }

@@ -18,17 +18,17 @@
         "php": "^8.0",
         "symfony/console": "^6.0",
         "symfony/yaml": "^6.0",
-        "phpseclib/phpseclib": "~2.0"
+        "phpseclib/phpseclib": "^2.0"
     },
     "autoload": {
         "psr-4": {
-            "minion\\": [
-                "src\/",
-                ".\/"
-            ]
+            "minion\\": "src\/"
         }
     },
     "bin": [
         "bin/minion"
-    ]
+    ],
+    "require-dev": {
+        "vimeo/psalm": "^4.21"
+    }
 }

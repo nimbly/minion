@@ -2,12 +2,10 @@
 
 namespace minion\Config;
 
-
-class Authentication extends ConfigProperty {
-
-	public $username = 'user';
-	public $password;
-	public $key;
-	public $passphrase;
-
+class Authentication extends ConfigProperty
+{
+	public string $username = "user";
+	public ?string $password;
+	public ?string $key;
+	public ?string $passphrase;
 }

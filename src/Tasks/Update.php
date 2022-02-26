@@ -2,23 +2,21 @@
 
 namespace minion\Tasks;
 
-
 use minion\Config\Environment;
 use minion\Connections\ConnectionAbstract;
 
-class Update extends TaskAbstract {
+class Update extends TaskAbstract
+{
+	public function run(Environment $environment, ConnectionAbstract $connection): void
+	{
+		$connection->cwd($environment->remote->getCurrentRelease());
 
-	public function run(Environment $environment, ConnectionAbstract $connection) {
+		$command = match($environment->code->scm) {
+			"git" => "git reset HEAD&&git pull",
+			"svn" => "svn up",
+			default => throw new \Exception("Unsupported SCM")
+		};
 
-	    $connection->cwd($environment->remote->getCurrentRelease());
-
-		if( $environment->code->scm == 'git' ) {
-			$connection->execute("git reset HEAD&&git pull");
-		}
-
-		elseif( $environment->code->scm == 'svn' ) {
-			$connection->execute("svn up");
-		}
+		$connection->execute($command);
 	}
-
 }

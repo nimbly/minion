@@ -7,23 +7,21 @@ use minion\Connections\ConnectionAbstract;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-abstract class TaskAbstract {
+abstract class TaskAbstract
+{
+	protected InputInterface $input;
+	protected OutputInterface $output;
 
-    /** @var InputInterface  */
-    protected $input;
+	/**
+	 * TaskInterface constructor.
+	 * @param InputInterface $input
+	 * @param OutputInterface $output
+	 */
+	public function __construct(InputInterface $input, OutputInterface $output)
+	{
+		$this->input = $input;
+		$this->output = $output;
+	}
 
-    /** @var OutputInterface  */
-    protected $output;
-
-    /**
-     * TaskInterface constructor.
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
-    public function __construct(InputInterface $input, OutputInterface $output){
-        $this->input = $input;
-        $this->output = $output;
-    }
-
-    abstract public function run(Environment $environment, ConnectionAbstract $connection);
+	abstract public function run(Environment $environment, ConnectionAbstract $connection): void;
 }
